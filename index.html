@@ -559,6 +559,7 @@ const CNY={2027:"2027-02-06",2028:"2028-01-26",2029:"2029-02-13"};
 function season(){
   const d=new Date(), m=d.getMonth()+1, day=d.getDate();
   if((m===10&&day>=15)||(m===11&&day<=2)) return "halloween";
+  if(m===11&&day>=3) return "autumn";
   if(m===12) return "christmas";
   const c=CNY[d.getFullYear()];
   if(c){ const diff=(d-new Date(c+"T00:00:00"))/86400000; if(diff>=-10&&diff<=15) return "cny"; }
@@ -566,6 +567,10 @@ function season(){
 }
 function hat(){ return S.grand?"chef":({halloween:"witch",christmas:"santa"}[season()]||""); }
 const SEASON_ITEMS={
+  maple:`<svg viewBox="0 0 28 36"><path d="M14 0v10" stroke="var(--muted)" stroke-width="1.5"/><path d="M11.6 14.0 L12.5 11.2 L14.0 9.5 L15.5 11.2 L16.4 14.0 L15.9 17.4 L18.7 16.0 L21.5 16.0 L23.5 16.9 L22.4 18.8 L20.2 20.4 L17.0 21.0 L18.5 22.8 L19.2 25.0 L19.0 26.9 L17.2 26.5 L15.3 25.1 L14.0 23.2 L12.7 25.1 L10.8 26.5 L9.0 26.9 L8.8 25.0 L9.5 22.8 L11.0 21.0 L7.8 20.4 L5.6 18.8 L4.5 16.9 L6.5 16.0 L9.3 16.0 L12.1 17.4Z" fill="#E8573A" stroke="#E8573A" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 20v13M14 22l-5-4M14 22l5-4" stroke="#B83A22" stroke-width="1" fill="none" stroke-linecap="round"/></svg>`,
+  mapleO:`<svg viewBox="0 0 28 36"><path d="M14 0v10" stroke="var(--muted)" stroke-width="1.5"/><path d="M11.6 14.0 L12.5 11.2 L14.0 9.5 L15.5 11.2 L16.4 14.0 L15.9 17.4 L18.7 16.0 L21.5 16.0 L23.5 16.9 L22.4 18.8 L20.2 20.4 L17.0 21.0 L18.5 22.8 L19.2 25.0 L19.0 26.9 L17.2 26.5 L15.3 25.1 L14.0 23.2 L12.7 25.1 L10.8 26.5 L9.0 26.9 L8.8 25.0 L9.5 22.8 L11.0 21.0 L7.8 20.4 L5.6 18.8 L4.5 16.9 L6.5 16.0 L9.3 16.0 L12.1 17.4Z" fill="#F39A2E" stroke="#F39A2E" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 20v13M14 22l-5-4M14 22l5-4" stroke="#C9741A" stroke-width="1" fill="none" stroke-linecap="round"/></svg>`,
+  ginkgo:`<svg viewBox="0 0 28 36"><path d="M14 0v12" stroke="var(--muted)" stroke-width="1.5"/><path d="M14 33V25" stroke="#C99A1A" stroke-width="1.4" stroke-linecap="round"/><path d="M14 26C9 24 4 20 3.5 14.5Q8.5 11 13 13.5L14 17L15 13.5Q19.5 11 24.5 14.5C24 20 19 24 14 26Z" fill="#F2C230" stroke="#F2C230" stroke-width="1.2" stroke-linejoin="round"/><path d="M14 25L8 16M14 25L11 15M14 25L17 15M14 25L20 16" stroke="#E0AE1E" stroke-width=".7"/></svg>`,
+  acorn:`<svg viewBox="0 0 28 36"><path d="M14 0v10" stroke="var(--muted)" stroke-width="1.5"/><path d="M14 9v3" stroke="#7A5230" stroke-width="1.6" stroke-linecap="round"/><path d="M8 19Q8 31 14 33Q20 31 20 19Z" fill="#C98B4E"/><ellipse cx="11.5" cy="23" rx="1.3" ry="3" fill="#FFFFFF" opacity=".35"/><path d="M6 19.5Q6 12 14 12Q22 12 22 19.5Z" fill="#8A5A33"/><path d="M8 15.5h12M7 18h14M10 13.5l1 6M14 12.5v7M18 13.5l-1 6" stroke="#6E4425" stroke-width=".7"/></svg>`,
   pumpkin:`<svg viewBox="0 0 28 36"><path d="M14 0v8" stroke="var(--muted)" stroke-width="1.5"/><rect x="12.5" y="7" width="3" height="5" rx="1.5" fill="#5D8A3A"/><ellipse cx="14" cy="23" rx="12.5" ry="10.5" fill="#F58A1F"/><path d="M9 14q-3 9 0 18M19 14q3 9 0 18" stroke="#D96F0E" stroke-width="1.4" fill="none"/><path d="M7.5 20l3-3 3 3zM14.5 20l3-3 3 3z" fill="#FFE07A"/><path d="M8 26l2 2 2-2 2 2 2-2 2 2 2-2q-6 5-12 0z" fill="#FFE07A"/></svg>`,
   bat:`<svg viewBox="0 0 28 36"><path d="M14 0v12" stroke="var(--muted)" stroke-width="1.5"/><path d="M14 14q3 0 4 3 3-3 8-2-3 2-3 6-3-2-5 1-1-3-4-3-3 0-4 3-2-3-5-1 0-4-3-6 5-1 8 2 1-3 4-3z" fill="#4A3B5C"/><circle cx="12.5" cy="18" r="1" fill="#FFFFFF"/><circle cx="15.5" cy="18" r="1" fill="#FFFFFF"/></svg>`,
   candy:`<svg viewBox="0 0 28 36"><path d="M14 0v10" stroke="var(--muted)" stroke-width="1.5"/><path d="M5 17l-4-4v10zM23 17l4-4v10z" fill="#FFB7C8"/><circle cx="14" cy="18" r="8" fill="#FF7F9B"/><path d="M9 13l10 10M7 18l7 7M14 11l7 7" stroke="#FFFFFF" stroke-width="2"/></svg>`,
@@ -579,6 +584,7 @@ const SEASON_ITEMS={
 };
 const SEASON_SETS={
   halloween:["pumpkin","bat","candy","pumpkin","bat","candy","pumpkin"],
+  autumn:["maple","ginkgo","acorn","mapleO","ginkgo","acorn","maple"],
   christmas:["bulbR","bulbG","bulbY","tree","bulbB","bulbR","bulbG"],
   cny:["lantern","fu","lantern","fu","lantern"]
 };
