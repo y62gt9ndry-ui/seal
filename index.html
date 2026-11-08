@@ -1,0 +1,1342 @@
+<!doctype html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>小海豹背單字</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="小海豹">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E6F1F8">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>[hidden]:not([hidden=until-found i]){display:none!important}body{margin:0}</style>
+<script>try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}</script>
+</head><body>
+
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Huninn&display=swap">
+<style>
+/* Layout: one-column phone app on an ice-floe ground; the white seal runs a crêpe stand, the griddle is the stage. */
+:root{
+  --bg:#E6F1F8; --floe:#F7FBFE; --surface:#FFFFFF; --ink:#1E3448; --muted:#6A8195;
+  --line:#D3E3EE; --accent:#FF7F9B; --accent-ink:#FFFFFF; --good:#4CBF9A; --good-soft:#DDF4EC;
+  --again:#F6A341; --again-soft:#FDEDD8; --coin:#F5B83D; --coin-ink:#7A5200;
+  --seal:#FFFFFF; --seal-belly:#F2F6F9; --seal-stroke:#C9D9E5; --seal-line:#2B4054; --cheek:#FFB3C3;
+  --wall:#FFF6EE; --counter:#F3E1CC;
+  --f-word:"Fredoka","Huninn","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+  --f-zh:"Huninn","PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+  --r:22px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1D2A; --floe:#142636; --surface:#1A2F42; --ink:#E6F0F7; --muted:#93AABD;
+  --line:#2A4358; --accent:#FF8FA8; --accent-ink:#1A1020; --good:#5FD1AC; --good-soft:#173A33;
+  --again:#F8B25E; --again-soft:#3A2C1A; --coin:#F7C452; --coin-ink:#3A2700;
+  --seal:#F6F9FB; --seal-belly:#E6EEF3; --seal-stroke:#AFC2D1; --seal-line:#1B2B39; --cheek:#F59AB0;
+  --wall:#22384C; --counter:#2E4559; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1D2A; --floe:#142636; --surface:#1A2F42; --ink:#E6F0F7; --muted:#93AABD;
+  --line:#2A4358; --accent:#FF8FA8; --accent-ink:#1A1020; --good:#5FD1AC; --good-soft:#173A33;
+  --again:#F8B25E; --again-soft:#3A2C1A; --coin:#F7C452; --coin-ink:#3A2700;
+  --seal:#F6F9FB; --seal-belly:#E6EEF3; --seal-stroke:#AFC2D1; --seal-line:#1B2B39; --cheek:#F59AB0;
+  --wall:#22384C; --counter:#2E4559; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-zh);font-size:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.app{max-width:460px;margin:0 auto;padding-block:14px 32px;display:flex;flex-direction:column;gap:14px;min-height:100%}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.view{display:flex;flex-direction:column;gap:14px}
+
+/* seal */
+.seal{width:132px;height:auto;display:block;overflow:visible}
+.seal [fill="var(--seal)"]{stroke:var(--seal-stroke);stroke-width:2;stroke-linejoin:round}
+.seal .eye-open{display:block}.seal .eye-happy{display:none}
+.seal.happy .eye-open{display:none}.seal.happy .eye-happy{display:block}
+.bob{animation:bob 3.2s ease-in-out infinite;transform-origin:50% 90%}
+.hop{animation:hop .55s cubic-bezier(.3,1.6,.5,1)}
+.tilt{animation:tilt .6s ease-in-out}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes hop{0%{transform:translateY(0) scale(1)}40%{transform:translateY(-14px) scale(1.04,.96)}100%{transform:translateY(0)}}
+@keyframes tilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-9deg)}65%{transform:rotate(6deg)}}
+
+/* shared */
+.hero{display:flex;align-items:flex-end;gap:12px}
+.bubble{position:relative;background:var(--surface);border-radius:18px;padding:12px 14px;line-height:1.5;flex:1;min-width:0;box-shadow:0 2px 0 var(--line)}
+.bubble::after{content:"";position:absolute;left:-7px;bottom:18px;width:14px;height:14px;background:var(--surface);transform:rotate(45deg);border-radius:3px}
+.bubble b{color:var(--accent)}
+.panel{background:var(--surface);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 3px 0 var(--line)}
+.panel h2{margin:0;font-size:15px;font-weight:400;color:var(--muted);letter-spacing:.04em}
+.counts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.count{background:var(--floe);border-radius:16px;padding:12px 14px}
+.count .n{font-family:var(--f-word);font-weight:700;font-size:32px;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:14px;color:var(--muted);margin-top:4px}
+.btn-main{background:var(--accent);color:var(--accent-ink);font-size:19px;border-radius:999px;padding:15px 20px;font-weight:600;
+  box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 60%,#000 25%);transition:transform .1s}
+.btn-main:active{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--accent) 60%,#000 25%)}
+.btn-main[disabled]{opacity:.5;cursor:default}
+.btn-soft{background:var(--floe);border-radius:999px;padding:13px 18px;font-size:17px}
+.modes{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+.modes .btn-soft{font-size:16px}
+.bar{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--line)}
+.bar span{display:block;height:100%;transition:width .5s}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.legend b{color:var(--ink);font-family:var(--f-word);font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.label{font-size:14px;color:var(--muted);min-width:5.5em}
+.seg{display:inline-flex;background:var(--floe);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{padding:7px 14px;border-radius:999px;font-size:15px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.link{color:var(--ink);text-decoration:underline;text-underline-offset:3px;font-size:15px}
+.sync{display:inline-flex;align-items:center;gap:6px}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.sync.on i{background:var(--good)}
+.streak{font-family:var(--f-word);font-weight:600;color:var(--again)}
+.coinpill{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border-radius:999px;padding:6px 12px 6px 6px;font-family:var(--f-word);font-weight:600;font-variant-numeric:tabular-nums;position:relative}
+.coin{width:22px;height:22px;border-radius:50%;background:var(--coin);box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--coin) 70%,#000 20%);display:grid;place-items:center;color:var(--coin-ink);font-size:12px;font-weight:700;font-family:var(--f-word)}
+.topbar{display:flex;align-items:center;gap:10px}
+.icon-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface);flex:none}
+.track{flex:1;position:relative;height:12px;background:var(--surface);border-radius:999px}
+.track .fill{position:absolute;inset:0 auto 0 0;background:var(--good);border-radius:999px;transition:width .35s}
+.tally{font-family:var(--f-word);font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:3.4em;text-align:right}
+h1.page{margin:0;font-size:20px;font-weight:400;flex:1}
+.float{position:absolute;right:0;top:-6px;font-family:var(--f-word);font-weight:700;color:var(--coin-ink);background:var(--coin);border-radius:999px;padding:2px 8px;font-size:14px;animation:floatup 1.2s ease-out forwards;pointer-events:none}
+@keyframes floatup{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-34px);opacity:0}}
+
+/* flashcards */
+.stage{perspective:1200px}
+.card{position:relative;height:min(52vh,380px);min-height:290px;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.3,.7,.3,1);cursor:pointer}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border-radius:28px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;box-shadow:0 5px 0 var(--line)}
+.back{transform:rotateY(180deg)}
+.tag{position:absolute;top:16px;left:18px;font-size:13px;padding:4px 10px;border-radius:999px;background:var(--floe);color:var(--muted)}
+.tag.new{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.word{font-family:var(--f-word);font-weight:600;font-size:clamp(34px,10vw,48px);line-height:1.1;overflow-wrap:anywhere}
+.hint{font-size:14px;color:var(--muted)}
+.speak{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:var(--floe);font-size:14px;color:var(--muted)}
+.senses{display:flex;flex-direction:column;gap:8px;align-items:center;max-width:100%}
+.sense{display:flex;gap:8px;align-items:baseline;justify-content:center;flex-wrap:wrap;font-size:clamp(18px,5.2vw,22px);line-height:1.5}
+.pos{font-family:var(--f-word);font-size:13px;font-weight:600;padding:2px 8px;border-radius:8px;background:var(--floe);color:var(--muted);flex:none}
+.back .word{font-size:clamp(26px,7vw,34px)}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ans{border-radius:20px;padding:16px 10px;font-size:18px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ans small{font-weight:400;font-size:13px;opacity:.8}
+.ans.again{background:var(--again-soft);color:color-mix(in srgb,var(--again) 70%,var(--ink))}
+.ans.good{background:var(--good-soft);color:color-mix(in srgb,var(--good) 65%,var(--ink))}
+.flip-btn{background:var(--surface);border-radius:20px;padding:16px;font-size:18px;box-shadow:0 3px 0 var(--line)}
+
+/* crêpe game */
+.shopfront{position:relative;border-radius:24px;background:var(--wall);overflow:hidden;min-height:150px;display:flex;align-items:flex-end;gap:10px;padding:14px 14px 0}
+.decor{position:absolute;inset:0;pointer-events:none}
+.customer{width:92px;flex:none;position:relative;z-index:1;transition:transform .5s cubic-bezier(.3,1.3,.5,1)}
+.customer.enter{transform:translateX(-140%)}
+.customer.leave{transform:translateX(160%);transition:transform .45s ease-in}
+.order{position:relative;z-index:1;flex:1;min-width:0;background:var(--surface);border-radius:18px;padding:10px 12px;margin-bottom:14px;display:flex;flex-direction:column;gap:6px;box-shadow:0 2px 0 var(--line)}
+.order::before{content:"";position:absolute;left:-7px;bottom:20px;width:14px;height:14px;background:var(--surface);transform:rotate(45deg);border-radius:3px}
+.order .who{font-size:13px;color:var(--muted)}
+.order .zh{font-size:17px;line-height:1.45}
+.order .zh .pos{margin-right:4px}
+.order .tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.order .speak{padding:5px 10px;font-size:13px}
+.counter{height:14px;background:var(--counter);margin:0 -14px;position:relative;z-index:1}
+.griddle-wrap{position:relative;display:grid;place-items:center;padding:6px 0}
+.stove{position:relative;width:min(84vw,330px);aspect-ratio:1;max-width:100%;border-radius:32px;display:grid;place-items:center;transition:background .3s}
+.plate{width:88%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;position:relative}
+.crepe{width:94%;aspect-ratio:1;border-radius:50%;position:relative;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:6px;padding:16%;box-sizing:border-box}
+.crepe.spread,.batter.spread{animation:spread .7s cubic-bezier(.3,1.1,.5,1)}
+.batter{position:absolute;left:3%;top:3%;width:94%;height:94%;pointer-events:none;overflow:visible;transition:opacity .25s;z-index:0}
+.crepe{z-index:1}
+.batter .cook{opacity:0;animation:fadeTo1 var(--cook) linear forwards}
+.batter .edge{opacity:0;animation:fadeEdge var(--cook) ease-in forwards}
+.batter .spot{opacity:0;animation:fadeSpot var(--cook) ease-in forwards}
+.batter .bub{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:bub 1.5s ease-out forwards;animation-delay:var(--d)}
+.batter .hole{opacity:0;animation:hole .5s ease-out forwards;animation-delay:calc(var(--d) + 1.25s)}
+@keyframes fadeTo1{to{opacity:1}}
+@keyframes fadeEdge{to{opacity:.85}}
+@keyframes fadeSpot{to{opacity:.35}}
+@keyframes bub{0%{transform:scale(0);opacity:0}25%{opacity:1}75%{transform:scale(1);opacity:1}100%{transform:scale(1.2);opacity:0}}
+@keyframes hole{to{opacity:.55}}
+@media (prefers-reduced-motion: reduce){.batter .cook{opacity:1!important}.batter .edge{opacity:.85!important}.batter .spot{opacity:.35!important}.batter .hole{opacity:.55!important}}
+@keyframes spread{0%{transform:scale(.15);opacity:.6}100%{transform:scale(1);opacity:1}}
+.crepe::before{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;clip-path:inset(0 0 50% 0);opacity:0;z-index:3;pointer-events:none;filter:brightness(.96)}
+.crepe > *{transition:opacity .25s}
+.crepe.fold > *{opacity:0}
+.crepe.fold::before{animation:flap .55s ease-in-out forwards}
+@keyframes flap{0%{opacity:1;transform:perspective(500px) rotateX(0)}100%{opacity:1;transform:perspective(500px) rotateX(-180deg)}}
+.crepe.fold{animation:halfclip .55s ease-in-out forwards}
+@keyframes halfclip{0%{clip-path:inset(0 0 0 0)}55%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(50% 0 0 0)}}
+.crepe.wrap{clip-path:inset(50% 0 0 0);animation:wrapup .4s ease-in forwards}
+@keyframes wrapup{0%{transform:none;opacity:1}100%{transform:translateY(-20%) scaleX(.22) rotate(-30deg);opacity:0}}
+.cone{position:absolute;left:50%;top:50%;width:min(30vw,118px);transform:translate(-50%,-50%) scale(.2);opacity:0;z-index:4;pointer-events:none}
+.cone.pop{animation:conepop .45s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes conepop{to{transform:translate(-50%,-50%) scale(1) rotate(-6deg);opacity:1}}
+.cone.fly{animation:conefly .6s ease-in forwards}
+@keyframes conefly{from{transform:translate(-50%,-50%) scale(1) rotate(-6deg);opacity:1}to{transform:translate(-120%,-250%) scale(.45) rotate(-18deg);opacity:0}}
+.stick{position:absolute;width:62%;left:19%;top:50%;height:16px;pointer-events:none;opacity:0}
+.stick.sweep{animation:sweep .7s ease-out}
+@keyframes sweep{0%{opacity:1;transform:rotate(0)}85%{opacity:1}100%{opacity:0;transform:rotate(330deg)}}
+.chef{position:absolute;right:-6px;bottom:-10px;width:78px;z-index:2}
+.slot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-word);font-weight:700;font-size:19px;
+  background:color-mix(in srgb,#fff 35%,transparent);border:2px dashed color-mix(in srgb,#7a4a1c 35%,transparent);box-sizing:border-box;color:#3b2410;position:relative}
+.slot.gap{width:12px;background:none;border:0}
+.slot.fixed{background:none;border:0;width:auto;min-width:14px}
+.slot.filled{border:0;background:none;cursor:pointer;animation:plop .25s cubic-bezier(.3,1.6,.5,1)}
+.slot.ok::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2.5px solid var(--good)}
+.slot.hinted::after{border-color:var(--coin)}
+.slot.bad{animation:shake .4s}
+@keyframes plop{0%{transform:scale(.3)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.tray{background:var(--surface);border-radius:24px;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:10px;box-shadow:0 3px 0 var(--line)}
+.top{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-family:var(--f-word);font-weight:700;font-size:22px;position:relative;transition:transform .12s, opacity .2s}
+.top:active{transform:scale(.9)}
+.top.used{opacity:0;pointer-events:none;transform:scale(.4)}
+.top.gone{opacity:0;pointer-events:none;transform:scale(.2) rotate(40deg)}
+.top span,.slot span{position:relative;z-index:1;display:block}
+.tsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;filter:drop-shadow(0 2px 0 rgba(0,0,0,.12))}
+.top{background:none}
+.tools-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.tool{background:var(--surface);border-radius:18px;padding:11px 6px;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 2px 0 var(--line)}
+.tool small{font-size:12px;color:var(--muted)}
+.tool[disabled]{opacity:.45;cursor:default}
+.result{position:fixed;inset:0;z-index:6;display:grid;place-items:end center;background:color-mix(in srgb,var(--ink) 25%,transparent);
+  padding:0 max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.result .sheet{width:100%;max-width:460px;background:var(--surface);border-radius:28px;padding:22px;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;animation:rise .35s cubic-bezier(.3,1.3,.5,1)}
+@keyframes rise{0%{transform:translateY(40px);opacity:0}100%{transform:none;opacity:1}}
+.result .big{font-family:var(--f-word);font-weight:600;font-size:clamp(30px,9vw,42px);line-height:1.1;overflow-wrap:anywhere}
+.result .earn{display:flex;gap:8px;align-items:center;font-family:var(--f-word);font-weight:700;font-size:20px;color:var(--coin-ink);background:color-mix(in srgb,var(--coin) 35%,transparent);border-radius:999px;padding:6px 14px}
+.result .note{font-size:14px;color:var(--muted);line-height:1.5}
+.result .btn-main{width:100%}
+.qz-h{font-size:14px;color:var(--muted);letter-spacing:.04em}
+.qz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.qz-opt{background:var(--floe);border:2px solid transparent;border-radius:14px;padding:12px 8px;font-size:16px;line-height:1.4}
+.qz-opt[disabled]{cursor:default}
+.qz-opt.right{border-color:var(--good);background:var(--good-soft)}
+.qz-opt.wrong{border-color:var(--again);background:var(--again-soft)}
+.qz-miss{display:flex;flex-direction:column;gap:4px;font-size:15px;text-align:left;background:var(--floe);border-radius:14px;padding:10px 14px;width:100%;box-sizing:border-box}
+.qz-miss b{font-family:var(--f-word);font-weight:600}
+
+/* done */
+.done{align-items:center;text-align:center;padding-top:24px}
+.done h1{margin:0;font-size:26px;font-weight:400}
+.done p{margin:0;color:var(--muted);line-height:1.6}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.summary .count{text-align:center}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:7;width:100%;height:100%}
+
+/* shop */
+.shelf{display:flex;flex-direction:column;gap:10px}
+.shelf h3{margin:0;font-size:16px;font-weight:400;display:flex;justify-content:space-between;align-items:baseline}
+.shelf h3 small{font-size:13px;color:var(--muted)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.item-card{background:var(--floe);border-radius:18px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;position:relative;border:2px solid transparent}
+.item-card .sw{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;overflow:hidden}
+.item-card .nm{font-size:14px;line-height:1.3}
+.item-card .pr{font-family:var(--f-word);font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:4px;color:var(--muted)}
+.item-card .pr .coin{width:16px;height:16px;font-size:9px}
+.item-card.equipped{border-color:var(--accent)}
+.item-card.locked{opacity:.45}
+.item-card.affordable .pr{color:var(--ink)}
+.item-card .badge{position:absolute;top:6px;right:6px;font-size:11px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 6px}
+.grand{display:flex;gap:14px;align-items:center}
+.grand .sw{width:72px;flex:none}
+.dex{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.dex div{background:var(--floe);border-radius:16px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--muted);gap:2px}
+.dex svg{width:100%;max-width:56px}
+.dex .unseen svg{filter:brightness(0) opacity(.18)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:15px;z-index:8;animation:rise .3s ease-out}
+
+/* list */
+.search{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:12px 16px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);-webkit-user-select:text;user-select:text}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 12px;border-radius:999px;background:var(--surface);font-size:14px;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.list{background:var(--surface);border-radius:var(--r);overflow:hidden}
+.item{display:grid;grid-template-columns:12px minmax(0,1fr);gap:12px;align-items:baseline;padding:11px 16px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .dot{width:10px;height:10px;border-radius:50%;align-self:center}
+.item .w{font-family:var(--f-word);font-weight:600;font-size:17px}
+.item .d{font-size:14px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+.more{padding:14px;text-align:center;color:var(--muted);font-size:14px;width:100%}
+/* seasonal garland */
+.season{position:relative;display:flex;justify-content:space-between;align-items:flex-start;height:40px;padding:0 4px;margin-bottom:-6px}
+.season:empty{display:none}
+.season::before{content:"";position:absolute;left:0;right:0;top:-10px;height:12px;border-bottom:2px solid var(--muted);border-radius:0 0 50% 50%;opacity:.45}
+.season svg{width:28px;height:36px;position:relative;transform-origin:50% 0;animation:sway 3.4s ease-in-out infinite}
+.season svg:nth-child(even){animation-delay:-1.7s}
+@keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+/* evil mode: one deliberate dark-purple look in either theme */
+body.evil{--bg:#1C1724;--surface:#2A2333;--floe:#3A3146;--ink:#EDE6F5;--muted:#B3A7C4;--line:#4A3F58;--wall:#2E2638;--counter:#1E1925;--accent:#B57EDC;--accent-ink:#1C1724;color-scheme:dark}
+body.evil .shopfront{box-shadow:inset 0 0 40px #7B4BB044}
+body.evil .tray{box-shadow:0 3px 0 #120F17, inset 0 0 18px #7B4BB033}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><filter id="hand" x="-6%" y="-6%" width="112%" height="112%"><feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+<div class="app" id="app">
+  <div id="pvBar" hidden style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--surface);border:2px dashed var(--accent);border-radius:16px;padding:10px 14px;font-size:14px"><span>黑化預覽中：單字和金幣照常記錄，黑化狀態不會存下來。</span><button id="pvExit" style="background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:6px 14px;font-size:14px">結束預覽</button></div>
+  <!-- HOME -->
+  <section class="view" id="v-home">
+    <div class="topbar" style="justify-content:space-between">
+      <span class="coinpill" id="coinHome"><span class="coin">$</span><b>0</b></span>
+      <button class="link" id="toShop">商店與圖鑑</button>
+    </div>
+    <div class="season" id="seasonHome" aria-hidden="true"></div>
+    <div class="hero">
+      <div id="sealHome"></div>
+      <div class="bubble" id="greet">嗨！今天也一起做可麗餅吧</div>
+    </div>
+    <div class="panel">
+      <h2>今天的份量</h2>
+      <div class="counts">
+        <div class="count"><div class="n" id="cDue">0</div><div class="l">要複習</div></div>
+        <div class="count"><div class="n" id="cNew">0</div><div class="l">新單字</div></div>
+      </div>
+      <div class="modes">
+        <button class="btn-main" id="startGame">做可麗餅</button>
+        <button class="btn-soft" id="startCards">翻卡練習</button>
+      </div>
+      <div class="hint" id="bonusNote"></div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between"><span>單字進度</span><span class="streak" id="streak"></span></div>
+      <div class="bar" id="bar"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="panel">
+      <div class="row"><span class="label">每天新字</span>
+        <div class="seg" id="segNew" role="group" aria-label="每天新字數量"><button data-v="10">10</button><button data-v="20">20</button><button data-v="30">30</button></div></div>
+      <div class="row"><span class="label">翻卡方向</span>
+        <div class="seg" id="segDir" role="group" aria-label="翻卡出題方向"><button data-v="en">看英文想中文</button><button data-v="zh">看中文想英文</button></div></div>
+      <div class="row"><span class="label">音效</span>
+        <div class="seg" id="segSound" role="group" aria-label="音效"><button data-v="1">開</button><button data-v="0">關</button></div></div>
+    </div>
+    <div class="panel" id="backupPanel">
+      <h2>進度備份</h2>
+      <div class="hint">進度只存在這支手機的瀏覽器裡，有可能被系統清掉。複製備份碼存到備忘錄，進度不見時貼上就能還原，也能用來換到另一台裝置。</div>
+      <div class="hint" id="bkLast"></div>
+      <div class="modes"><button class="btn-soft" id="bkCopy">複製備份碼</button><button class="btn-soft" id="bkOpen">貼上還原</button></div>
+      <div id="bkBox" hidden style="display:flex;flex-direction:column;gap:8px">
+        <textarea id="bkText" class="search" style="border-radius:14px;min-height:90px;font-size:13px;font-family:monospace" placeholder="把備份碼貼在這裡" autocomplete="off"></textarea>
+        <div class="hint" id="bkMsg"></div>
+        <div class="modes"><button class="btn-main" id="bkRestore" style="font-size:16px;padding:11px 16px">還原這個進度</button><button class="btn-soft" id="bkClose">取消</button></div>
+      </div>
+    </div>
+    <div class="foot">
+      <button class="link" id="toList">查看單字表</button>
+      <span class="sync" id="sync"><i></i><span>只存在這台裝置</span></span>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section class="view" id="v-game" hidden>
+    <div class="topbar">
+      <button class="icon-btn" id="gQuit" aria-label="回首頁"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      <div class="track"><div class="fill" id="gFill"></div></div>
+      <span class="coinpill" id="coinGame"><span class="coin">$</span><b>0</b></span>
+    </div>
+    <div class="season" id="seasonGame" aria-hidden="true"></div>
+    <div class="shopfront" id="shopfront">
+      <div class="decor" id="decor"></div>
+      <div class="customer" id="customer"></div>
+      <div class="order" id="order"></div>
+    </div>
+    <div class="griddle-wrap">
+      <div class="stove" id="stove">
+        <div class="plate" id="plate">
+          <svg class="batter" id="batter" viewBox="0 0 200 200" aria-hidden="true"></svg>
+          <div class="crepe" id="crepe"></div>
+          <svg class="stick" id="stick" viewBox="0 0 200 16"></svg>
+        </div>
+      </div>
+      <div class="chef" id="chef"></div>
+    </div>
+    <div class="tray" id="tray"></div>
+    <div class="tools-row">
+      <button class="tool" id="tHint">提示<small>放上一個對的</small></button>
+      <button class="tool" id="tHelp">求助<small>收走一半錯的</small></button>
+      <button class="tool" id="tClear">清空<small>重新排</small></button>
+    </div>
+  </section>
+
+  <!-- CARDS -->
+  <section class="view" id="v-study" hidden>
+    <div class="topbar">
+      <button class="icon-btn" id="quit" aria-label="回首頁"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <div class="tally" id="tally"></div>
+    </div>
+    <div class="stage">
+      <div class="card" id="card" role="button" tabindex="0" aria-label="翻面看答案">
+        <div class="face front" id="front"></div>
+        <div class="face back" id="back"></div>
+      </div>
+    </div>
+    <button class="flip-btn" id="flipBtn">想好了，看答案</button>
+    <div class="answers" id="answers" hidden>
+      <button class="ans again" id="bAgain">還不熟<small>等一下再考一次</small></button>
+      <button class="ans good" id="bGood">記得了<small>過幾天再複習</small></button>
+    </div>
+  </section>
+
+  <!-- DONE -->
+  <section class="view done" id="v-done" hidden>
+    <div id="sealDone"></div>
+    <h1 id="doneTitle">今天完成了！</h1>
+    <p id="doneText"></p>
+    <div class="summary">
+      <div class="count"><div class="n" id="sTotal">0</div><div class="l" id="sTotalL">做了幾個</div></div>
+      <div class="count"><div class="n" id="sGood">0</div><div class="l">一次就對</div></div>
+      <div class="count"><div class="n" id="sCoins">0</div><div class="l">賺到金幣</div></div>
+    </div>
+    <button class="btn-soft" id="bkDone" style="width:100%">複製今天的備份碼</button>
+    <div class="hint" style="text-align:center">存到備忘錄，進度不見時可以還原</div>
+    <button class="btn-main" id="backHome" style="width:100%">回首頁</button>
+  </section>
+
+  <!-- SHOP -->
+  <section class="view" id="v-shop" hidden>
+    <div class="topbar">
+      <button class="icon-btn" id="shopBack" aria-label="回首頁"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9l6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h1 class="page">海豹的可麗餅店</h1>
+      <span class="coinpill" id="coinShop"><span class="coin">$</span><b>0</b></span>
+    </div>
+    <div class="hint">依序解鎖，買過的可以隨時換回來用。店面裝潢買了就會一直掛著。</div>
+    <div id="shelves" class="view"></div>
+  </section>
+
+  <!-- LIST -->
+  <section class="view" id="v-list" hidden>
+    <div class="topbar">
+      <button class="icon-btn" id="listBack" aria-label="回首頁"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9l6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h1 class="page">單字表</h1>
+    </div>
+    <input class="search" id="q" type="search" placeholder="搜尋英文或中文" autocomplete="off">
+    <div class="chips" id="filters">
+      <button class="chip" data-f="all" aria-pressed="true">全部</button>
+      <button class="chip" data-f="known">已熟記</button>
+      <button class="chip" data-f="learning">學習中</button>
+      <button class="chip" data-f="new">還沒學</button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+</div>
+<div class="result" id="result" hidden><div class="sheet" id="sheet"></div></div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+const WORDS = [["a lot of", "許多(片)"], ["ability", "能力、才幹(n)"], ["abroad", "國外、海外(adv)"], ["absent", "缺席的、心不在焉的(adj)"], ["accept", "接受、認可(vt)"], ["accident", "意外的事、事故(n)"], ["achieve", "完成、達到、實現(vt)"], ["across", "橫過、穿過、在…對面(prep) 橫過、穿過、…寬(adv)"], ["act", "行動、做(vi) 行為、動作、法令(n)"], ["action", "動作、行動(n)"], ["active", "活躍的、積極的(adj)"], ["activity", "活動(n)"], ["actor", "男演員(n)"], ["actress", "女演員(n)"], ["add", "(添)加、進一步說(或寫)(vt) 增添(vi)"], ["addition", "加、加起來、增加物、增加、加法(n)"], ["address", "地址、住址、演講(n) 寫姓名地址(於郵件上) 向…講話(vt)"], ["adjective", "形容詞的(adj)"], ["admire", "欽佩、讚賞(vt)"], ["admit", "承認、准許…進入、准許…加入(vt)"], ["adopt", "收養、採取(vt)"], ["adult", "成人(n)"], ["advance", "前進、向前移動(vi) 前進、進展(n)"], ["advantage", "優勢、有利條件、利益(n)"], ["adverb", "副詞(n)"], ["advertisement", "廣告、做廣告(n)"], ["advice", "勸告、意見(n)"], ["advise", "勸告、建議、通知(vt)"], ["affair", "事情、事件(n)"], ["affect", "影響(v)"], ["against", "違反、逆、反(對) 倚在、緊靠在(prep)"], ["ahead", "在前、向前、提前(adv)"], ["aid", "幫助、援助、幫助者、有幫助的事物(n) 資助、援助、幫助(vt)"], ["AIDS", "愛滋病(n)"], ["aim", "把…瞄準、把…對準(vt) 瞄準、旨在(at)(vi)"], ["air conditioner", "空調機(n)"], ["aircraft", "飛行器、航行器(n)"], ["airline", "航線(n)"], ["airmail", "航空信(n)"], ["alarm", "警報(n)"], ["alarm clock", "鬧鐘(n)"], ["album", "相簿(n)"], ["alike", "同樣的、相像的(adj)"], ["alive", "活著的、存在的、活躍的(adj)"], ["alley", "弄、小巷、胡同(n)"], ["allow", "允許、准許(vt)"], ["alone", "單獨的、孤獨的(adj) 單獨地、獨自地、僅僅、只(adv)"], ["aloud", "出聲地、大聲地(adv)"], ["alphabet", "字母、字母表(n)"], ["altogether", "總共、完全、總之(adv)"], ["ambulance", "救護車(n)"], ["among", "在…之中、在…之間(prep)"], ["amount", "合計(vi)"], ["ancient", "已往的、古代的、遠古的、舊式的(adj)"], ["angel", "天使、完善可愛的人(n)"], ["anger", "憤怒(n) 使發怒(vt)"], ["ankle", "踝(n)"], ["ant", "螞蟻(n)"], ["anyway", "無論如何(adv)"], ["anywhere", "任何地方、無論哪裡(pron)"], ["apologize", "道歉、認錯(vi)"], ["appearance", "出現、露面、外貌、外觀(n)"], ["apply", "申請(vi) 應用(vt)"], ["appreciate", "瞭解、欣賞、感激、升值(v)"], ["area", "地區、地域、範圍、面積(n)"], ["argue", "爭論、爭辯(vi) 論證、主張、辯論(vt)"], ["armchair", "扶手椅(n)"], ["army", "軍隊、軍(n)"], ["arrange", "安排(v)"], ["arrest", "逮捕、拘留(vt)"], ["article", "文章、論文、條款、物件、[語法]冠詞(n)"], ["artist", "藝術家、美術家(n)"], ["as if", "好像(片)"], ["as soon as", "儘快(片)"], ["as well as", "也、不僅…而且(片)"], ["Asia", "亞洲(n)"], ["Asian", "亞洲(人)的(adj) 亞洲人(n)"], ["asleep", "睡覺的(adj)"], ["assistant", "助手、助理、助教(n) 助手的、輔助的(adj)"], ["assume", "假定、設想(vt)"], ["attack", "攻擊、進攻、襲擊(v)"], ["attend", "出席(v)"], ["attention", "注意、留心(n)"], ["audience", "聽眾、觀眾、接見、拜見(n)"], ["Australia", "澳大利亞(n)"], ["Australian", "澳大利亞(人)的(adj) 澳大利亞人(n)"], ["auxiliary", "輔助的、協助的(adj) 輔助物、援軍(n)"], ["available", "可利用的、可獲取得的(adj)"], ["avoid", "避免(v)"], ["awake", "喚醒、使…覺醒(vt)"], ["aware", "意識到(adj)"], ["baby sitter", "褓母(n)"], ["backward", "向後地(的)、相反地(的)、退步(adv、adj)"], ["badminton", "羽毛球(n)"], ["bake", "烘、烤(vt)"], ["balcony", "陽臺(n)"], ["balloon", "氣球(n)"], ["banker", "銀行家(n)"], ["bar", "條、棒、橫木、酒吧間、柵、障礙物(n) 禁止、阻擋、妨礙(vt)"], ["barbecue", "吃烤燒肉的野餐(n)"], ["barber", "理髮師(n)"], ["bark", "(狗等)吠、叫(vi) 大聲叫喊(vt)"], ["base", "基地(n) 建立在…基礎上(vt)"], ["basement", "地下室(n)"], ["basic", "基本的、基礎的(adj)"], ["basis", "基礎、基本、根據、主要成分(n)"], ["bat", "蝙蝠(n)"], ["bean", "豆(n)"], ["beard", "鬍鬚、倒鉤(n)"], ["beat", "打、擊、打敗(vt) (心臟等)跳動(vi)"], ["beautifully", "美麗地(adv)"], ["beer", "啤酒(n)"], ["beginner", "初學者(n)"], ["beginning", "開始、起源(n)"], ["behave", "行為、表現、舉止(vt) (機器等)運轉(vi)"], ["being", "be 的現在分詞(v) 存在、生存(n)"], ["belief", "信任、信心、信仰(n)"], ["bench", "長凳、長椅(n)"], ["besides", "在…旁邊、在…附近(prep)"], ["best", "最好的(adj) 最好地(adv)"], ["better", "較好的、更好的、(健康)好轉的(adj) 更好地(adv)"], ["beyond", "在…那邊、遠於、超出、超過(prep) 在遠處(adv)"], ["bicycle riding", "騎腳踏車(n)"], ["bill", "帳單、單子、清單、鈔票、鳥嘴(n)"], ["biology", "生物學、生物(總稱)(n)"], ["bit", "一點、一些(n)"], ["bitter", "痛苦的、有苦味的、寒冷入骨的(adj)"], ["blame", "責備、責怪、把…歸咎於(vt) 責任、責怪、責備(n)"], ["blank", "空的、空白的(adj)"], ["blanket", "毯子(n)"], ["blood", "血(液)、血統(n)"], ["blouse", "女式襯衫(n)"], ["board", "(木)板、董事會(n) 上(車、船或飛機)(vt)"], ["boil", "沸騰(vi) 使…沸騰(vt)"], ["bomb", "炸彈(n)"], ["bone", "骨、骨骼(n)"], ["bookcase", "書櫥(n)"], ["both … and", "兩個都…、既…又…(片)"], ["bother", "打擾、麻煩(v) 麻煩、打擾(n)"], ["bow", "弓(形物)、蝴蝶結(n) 鞠躬、點頭(n)"], ["bowling", "保齡球(n)"], ["boyfriend", "男朋友(n)"], ["brain", "腦(袋)、智力(n)"], ["branch", "樹枝、分支、分部、分公司(n)"], ["brave", "勇敢的(adj)"], ["brick", "磚、積木(n)"], ["brief", "摘要、大綱(n) 簡短的、短暫的(adj)"], ["Britain", "英國(n)"], ["British", "不列顛(人)的、英國(人)的(adj) 英國人(n)"], ["broad", "寬的、闊的、廣闊的、廣泛的(adj)"], ["broadcast", "廣播、播音(vi) 廣播、播音(n)"], ["brunch", "早午餐(n)"], ["bucket", "水桶、桶(n)"], ["buffet", "自助餐廳(n) 打擊、毆打(v)"], ["bug", "蟲、軟體錯誤(n)"], ["building", "建築物、大樓(n)"], ["bun", "小圓麵包(n)"], ["bundle", "包、捆、束(n) 包紮、捆(v)"], ["burger", "(口)漢堡(n)"], ["burst", "爆裂(v) 爆炸、爆裂(n)"], ["bus stop", "公共汽車站(n)"], ["butterfly", "蝴蝶(n)"], ["button", "鈕扣、按扭(n) 扣上、扣緊(vt)"], ["cabbage", "甘藍菜、捲心菜(n)"], ["cabinet", "(有抽屜或格子的)櫥櫃、(美)內閣(n)"], ["cable", "粗索、電纜、錨鏈(n)"], ["cafeteria", "自助餐廳(n)"], ["cage", "籠(n)"], ["calendar", "月曆、行事曆(n)"], ["calm", "平靜的、鎮靜的(adj) 使…平靜/鎮定(vt)"], ["camping", "露營(n)"], ["campus", "校園、園區(n)"], ["Canada", "加拿大(n)"], ["Canadian", "加拿大人(n)"], ["cancel", "取消(v)"], ["cancer", "癌(n)"], ["candle", "蠟燭(n)"], ["captain", "上尉、隊長、船長、機長(n)"], ["career", "事業、生涯(n)"], ["carefully", "小心地(adv)"], ["careless", "不注意的、粗心大意的(adj)"], ["carpet", "地毯(n)"], ["carrot", "胡蘿蔔(n)"], ["cartoon", "漫畫、卡通畫(n) 卡通片、動畫片(n)"], ["cash", "現金(n)"], ["cassette", "(裝錄音帶的)卡式盒(匣)(n)"], ["castle", "城堡(n)"], ["cause", "原因、起因、事業(n) 使…產生、引起(vt)"], ["CD", "光碟、雷射唱片(n)"], ["CD player", "雷射唱片播放器(n)"], ["ceiling", "天花板(n)"], ["cell", "單元、細胞、蜂房、單人房間、電池(n)"], ["centimeter", "釐米、公分(n)"], ["central", "中央的、中心的(adj)"], ["century", "世紀、百年(n)"], ["cereal", "穀物、穀類食品(麥片等)(n)"], ["certain", "確定的、肯定的(adj)"], ["certainly", "的確、一定、當然可以(adv)"], ["chairman", "主席、議長、董事長(n)"], ["channel", "海峽、水渠、水道、通訊頻道(n)"], ["chapter", "(書籍)章(n)"], ["character", "性格、特性、特質、品格、人物(n)"], ["charge", "索價、控告、充電(vt) 費用、指控、充電(n)"], ["chart", "海圖、圖表(n) 製圖(vt)"], ["chase", "追趕、驅逐、追求、追捕(v)"], ["cheerleader", "啦啦隊隊長(n)"], ["chemical", "化學的(adj)"], ["chess", "西洋棋(n)"], ["chief", "首領、酋長(n) 首要的、主要的(adj)"], ["childhood", "孩童時期(n)"], ["childish", "孩子氣的、幼稚的、傻氣的(adj)"], ["childlike", "孩子似的、天真無邪的(adj)"], ["children", "孩童(child 的複數)(n)"], ["chin", "下巴、下頷(n)"], ["Chinese New Year", "農曆新年(n)"], ["choice", "選擇、抉擇(n)"], ["choose", "選擇、挑選(vt)"], ["Christmas Eve", "聖誕前夕(n)"], ["chubby", "胖嘟嘟的、圓胖的(adj)"], ["citizen", "公民、市民、居民(n)"], ["claim", "聲稱、主張、要求(vt) 要求、主張、斷言(n)"], ["clap", "拍手、拍、輕敲(v)"], ["class leader", "班長(n)"], ["classic", "傑作、名著(n) 第一流的(adj)"], ["classical", "古典的、模範的、傳統的(adj)"], ["clerk", "店員、辦事員、職員(n)"], ["clever", "聰明的、機靈的(adj)"], ["climate", "氣候、風土、潮流(n)"], ["climbing", "攀登、登山(n)"], ["closet", "壁櫥、小櫥(n)"], ["cloth", "布、布料、抹布、桌布(n)"], ["clothing", "(總稱)衣服(n)"], ["coach", "長途公共汽車、車廂、教練(n) 訓練、指導(vt)"], ["coast", "海岸、海濱(n)"], ["cockroach", "蟑螂(n)"], ["coin", "硬幣(n)"], ["collection", "收藏、徵收、搜集品、捐款(n)"], ["college", "大學、學院(n)"], ["comb", "梳子(n) 梳理(vt)"], ["comfortably", "舒適地(adv)"], ["command", "命令、指揮(vt) 命令、控制(n)"], ["comment", "註釋、註解、說明(n) 評論(v)"], ["company", "公司、同伴、陪伴(n)"], ["compare", "比較、對照(vt)"], ["complain", "抱怨(v)"], ["complete", "完全的、完整的(adj) 完成、使…完整(vt)"], ["computer game", "電腦遊戲(n)"], ["concern", "關心、掛念(n) 涉及、使關心、掛念(vt)"], ["confident", "自信的(adj)"], ["confirm", "證實、確實、確切(vt)"], ["conflict", "衝突(vi) 爭論、衝突(n)"], ["confuse", "使混亂(vt)"], ["congratulation", "祝賀、恭賀(n)"], ["connective", "連結的、連接的(adj) 連結詞(n)"], ["consider", "認為、把…看作、考慮、細想(vt)"], ["contact lens", "隱形眼鏡(n)"], ["contain", "包含、容納(vt)"], ["continue", "繼續、延續(v)"], ["contract", "合同、契約(n) 訂合同、縮小(vi)"], ["control", "控制、支配、克制(vt) 控制、克制(n)"], ["convenience store", "便利商店(n)"], ["conversation", "談話、會話(n)"], ["cookies", "餅乾、小甜點(n)"], ["cooking", "烹調(n) 烹調用的(adj)"], ["corn", "穀物、小麥、玉米(n)"], ["corner", "角、牆角、街角(n)"], ["cotton", "棉花、棉布(n)"], ["cough", "咳嗽(v) 咳嗽(n)"], ["countryside", "農村(n)"], ["county", "縣、郡(n)"], ["couple", "夫妻、一對、一雙、兩三個、一些(n) 連接、結合(vt)"], ["courage", "勇氣、膽量(n)"], ["course", "課程、教程、進程、路線、(一)道(菜)(n)"], ["court", "庭院、場地、法庭、法院(n)"], ["crab", "蟹、挑剔者(n)"], ["crayon", "有色粉筆、蠟筆、粉筆畫(n)"], ["cream", "奶油、膏、霜(n)"], ["create", "創造、創作(v)"], ["credit card", "信用卡(n)"], ["crime", "犯罪、罪行、罪惡(n)"], ["crisis", "危機、危急關頭(n)"], ["crowd", "群、人群、群眾(n) 聚集、群集(vi)"], ["crowded", "擁擠的、客滿的(adj)"], ["cruel", "殘酷的、殘忍的(adj)"], ["culture", "文化、教養、修養(n)"], ["culture center", "文化中心(n)"], ["cure", "治癒、消除、改正(vt) 治癒、治療(n)"], ["curious", "好奇的(adj)"], ["current", "水流、電流(n) 當前的、流行的(adj)"], ["curtain", "簾、窗簾、門簾、幕(n)"], ["curve", "曲線(n)"], ["custom", "風俗習慣(n)"], ["customer", "顧客、主顧(n)"], ["daily", "每日的(adj) 每日、天天(adv)"], ["damage", "毀壞、損害(vt) 毀壞、(複)賠償金(n)"], ["dancing", "跳舞(n)"], ["danger", "危險(n)"], ["data", "資料(n)"], ["dawn", "黎明、開始(n) 破曉、開始發展(vi)"], ["deaf", "聾的、不願聽的(adj)"], ["deal", "給予、分配(vt) 交易、處理(with)(vi)"], ["death", "死、死亡(n)"], ["debate", "辯論、爭論(n)"], ["debt", "債務、罪過(n)"], ["decision", "決定(n)"], ["decorate", "裝飾、裝璜(vt)"], ["deep", "深的、縱深的、深切的(adj) 深深地(adv)"], ["deer", "鹿(n)"], ["degree", "程度、度數、學位(n)"], ["delay", "推遲、耽擱(n)"], ["deliver", "投遞、發表、分娩(vt)"], ["democracy", "民主政治、民主主義(n)"], ["democratic", "民主的、民主主義的(adj)"], ["dentist", "牙醫(n)"], ["deny", "否認、拒絕給予(vt)"], ["department", "部門、部、院、局、處(n)"], ["depend", "依靠、依賴、決定於(on、upon)(vi)"], ["describe", "形容、描寫(vt)"], ["desert", "沙漠、不毛之地(n) 遺棄(vt)"], ["design", "設計(v) 設計、圖樣、圖案(n)"], ["desire", "願望、渴望(n) 想望、渴望(vt)"], ["dessert", "甜點(n)"], ["detect", "發覺、識破、查出(v)"], ["determine", "決定、決心(vt)"], ["determiner", "(文法的)限定詞(n)"], ["develop", "發展、形成、開發(vt) 發展、成長、發育(vi)"], ["dial", "(電話的)撥號盤、刻度盤(n)"], ["diamond", "鑽石、金剛石、菱形(n)"], ["diary", "日記、日記本(n)"], ["diet", "通常所吃的食物、飲食(n)"], ["difference", "差別、差異、差額(n)"], ["difficulty", "困難、難事(n)"], ["diligent", "勤奮的、煞費苦心的(adj)"], ["dinosaur", "恐龍(n)"], ["diplomat", "外交官(n)"], ["direct", "直接的(adj) 指示、導演、管理(vt)"], ["direction", "方向、方位、(複)使用說明(n)"], ["director", "指導者、主任、董事、導演(n)"], ["disappear", "消失、看不見、失蹤(v)"], ["discover", "發現、暴露、顯示(v)"], ["discuss", "討論(v)"], ["discussion", "討論、談論(n)"], ["dishonest", "不誠實的、不正直的(adj)"], ["distance", "距離、間距(n)"], ["divide", "分、劃分(into)、隔開、除(by)(vt)"], ["division", "分開、分割、區分、除法、分配、分界線(n)"], ["dizzy", "暈眩的、眼花撩亂的(adj)"], ["document", "公文、文件、檔案、文獻(n) 證明(v)"], ["dodge ball", "躲避球(n)"], ["dolphin", "海豚(n)"], ["donkey", "驢子、傻瓜(n)"], ["dot", "點(n)"], ["double", "兩倍的、雙(重)的(adj) (使…)加倍(v)"], ["Double Tenth Day", "雙十節(n)"], ["doubt", "懷疑(n)"], ["doughnut", "甜甜圈(n)"], ["downstairs", "樓下(的)(n)"], ["downtown", "往市中心、在市中心(adv、adj)"], ["dragon", "龍(n)"], ["Dragon-boat Festival", "端午節(n)"], ["drama", "戲劇、劇本(n)"], ["drawer", "付款人、製圖者(n)"], ["drawing", "畫畫、圖畫、素描(n)"], ["dresser", "碗櫃、餐具櫥、服裝師(n)"], ["drinks", "飲料(n)"], ["drug", "藥、藥物、(複)毒品(n) 用藥麻醉(vt)"], ["drugstore", "藥局(n)"], ["drum", "鼓(n)"], ["dryer", "烘乾機(n)"], ["duck", "鴨子(n)"], ["dumb", "啞的(adj)"], ["dumpling", "餃子(n)"], ["duty", "職責、責任、義務、(複)關稅(n)"], ["eagle", "鷹(n)"], ["earn", "賺得、獲得、掙得(vt)"], ["earrings", "耳環、耳飾、耳墜(n)"], ["Easter", "(基督)復活節(n)"], ["eastern", "東方的、東部的(adj)"], ["edge", "邊、邊緣、棱(n)"], ["education", "教育、培養(n)"], ["effect", "結果、效果、作用(n) 引起、招致(vt)"], ["effective", "有效的、給人深刻印象的、有力的(adj)"], ["effort", "努力、艱難的嘗試(n)"], ["eighteenth", "第十八、十八分之一(n)"], ["either … or", "或者…或者…(片)"], ["elder", "年齡大的、年長的(adj) (複)長輩(n)"], ["elect", "選舉、選擇、決定(v)"], ["election", "選舉、當選(n)"], ["electric", "電的、電動的(adj)"], ["electricity", "電(n)"], ["element", "要素、元素、成分、元件(n)"], ["eleventh", "第十一(num) 十一分之一(n)"], ["emotion", "情感、情緒、感情(n)"], ["emphasize", "強調(v)"], ["employ", "雇用、使用(vt)"], ["empty", "空的、空洞的、空虛的(adj) 使…空、倒空(v)"], ["encourage", "鼓勵、支援(vt)"], ["enemy", "敵人、敵軍、仇敵(n)"], ["energy", "精力、活力、能(量)(n)"], ["engine", "引擎(n)"], ["engineer", "工程師、技師(n) 設計、建造(v)"], ["England", "英格蘭、英國(n)"], ["Englishman", "英格蘭人、英國人(n)"], ["entire", "全部的、整個的(adj)"], ["entrance", "入口、門口(n)"], ["envelope", "信封(n)"], ["environment", "環境、周圍狀況(n)"], ["envy", "羡慕、妒忌(v)"], ["equal", "相等的、同樣的、平等的(adj) 等於(vt)"], ["error", "錯誤、誤差(n)"], ["especially", "特別、尤其、格外(adv)"], ["Europe", "歐洲(n)"], ["European", "歐洲的(adj) 歐洲人(n)"], ["even if", "即使、縱然(片)"], ["event", "事件、大事(n)"], ["everywhere", "到處、無論何處(adv)"], ["evil", "壞的、邪惡的(adj)"], ["exact", "精確的、確切的(adj)"], ["exam", "(口語)考試(n)"], ["examine", "檢查、調查、考試(v)"], ["excite", "使…興奮、使…激動(vt)"], ["exercising", "運動、體操(n)"], ["exist", "存在(vi)"], ["exit", "出口(n)"], ["expect", "預料、等待、期待(vt)"], ["expensive fruit", "高級水果、昂貴的水果(n)"], ["explain", "解釋、說明(vt)"], ["express", "表示、表達(vt) 快車、快遞(n)"], ["extra", "額外的、外加的(adj) 特別地(adv)"], ["extra large", "特大號的(adj)"], ["eyebrow", "眉毛(n)"], ["fail", "失敗、不及格、失靈(vi) 未能、使…不及格(vt)"], ["failure", "失敗、失敗者、缺乏、故障、(美)不及格(n)"], ["fair", "公平的、公正的、尚可的(adj) 公平地(adv)"], ["family name", "姓(n)"], ["fancy", "奇特的、異樣的(adj) 愛好、迷戀、想像力(n)"], ["fantastic", "幻想的、奇異的、極好的(adj)"], ["far", "遠(adj)"], ["fashionable", "流行的、時髦的(adj)"], ["fast food", "速食(n)"], ["fast food restaurant", "速食餐廳(n)"], ["faucet", "(容器或水管的)龍頭(n)"], ["fault", "過失、過錯、缺點、故障(n)"], ["favor", "好感、喜愛、贊同、恩惠(n) 贊同、偏愛(vt)"], ["fear", "害怕、恐怕(n) 畏懼、害怕、擔心(vt)"], ["feather", "羽毛(n)"], ["feeling", "感覺(n)"], ["fellow", "人、傢伙、小夥子(n) 同伴的(adj)"], ["fence", "柵欄、圍欄、籬笆(n)"], ["fever", "發燒、一時的狂熱(n)"], ["field", "田地、田野、領域、範圍(n)"], ["fifteenth", "第十五、十五分之一(n)"], ["fight", "戰鬥、打架、搏鬥(n) 戰鬥、作戰、爭鬥、打架(vi)"], ["figure", "數字、外形、輪廓、人物、身材、插圖(n)"], ["film", "電影、影片、膠捲(n) 把…拍攝成電影(vt)"], ["final", "最後的、最終的、決定性的(adj)"], ["fire station", "消防站(n)"], ["firm", "商行、公司(n) 結實的、堅固的(adj)"], ["first grade", "一年級(n)"], ["first name", "名(n)"], ["fishing", "釣魚(n)"], ["fit", "適合、合身(vt) 適合、符合(vi)"], ["flag", "旗(幟)(n)"], ["flashlight", "手電筒、閃光(n)"], ["flat", "平的、平坦的(adj) 公寓(n)"], ["flat tire", "洩了氣的輪胎(n)"], ["flight", "飛翔、飛行、航班(n)"], ["flour", "麵粉(n)"], ["flow", "流(動)、垂、飄浮(vi) 流、流量(n)"], ["flower shop", "花店(n)"], ["flu", "流行性感冒(n)"], ["flute", "笛、長笛(n)"], ["focus", "(使)聚焦、集中(v) 焦點、中心(n)"], ["fog", "霧(n) 起霧(v)"], ["foggy", "多霧的(adj)"], ["food restaurant", "餐廳(n)"], ["fool", "蠢人、傻瓜(n) 愚弄、欺騙(vt)"], ["foolish", "愚蠢的(adj)"], ["football", "足球、足球運動(n)"], ["force", "強迫、迫使(vt) 暴力、武力、力氣、(複)軍隊(n)"], ["forest", "森林(n)"], ["forgive", "原諒(v)"], ["form", "形式、形狀、表格(n) 形成、組成(vt)"], ["former", "在前的、以前的(adj) 前者(n)"], ["forward", "向前的、前部的(adj) 向前地(adv)"], ["fourteenth", "第十四、十四分之一(n)"], ["fox", "狐狸、狡猾的人(n)"], ["France", "法國(n)"], ["frank", "率直的、坦白的(adj)"], ["freedom", "自由(n)"], ["freezer", "冷凍裝置、冰箱、製冰機(n)"], ["freezing", "結冰的、極冷的(adj)"], ["French", "法國的、法國人的(adj) 法國人、法語(n)"], ["French fries", "炸薯條(n)"], ["fried chicken", "炸雞(n)"], ["fried rice", "炒飯(n)"], ["friendship", "友誼、友情(n)"], ["frighten", "使…驚恐、嚇唬(vt)"], ["Frisbee", "飛盤(n)"], ["frog", "青蛙(n)"], ["fry", "煎、炸、炒(v)"], ["function", "功能、作用、職責、典禮、[數]函數(n) 運行、行使職責(vi)"], ["furniture", "傢俱(n)"], ["gain", "獲得、增加(vt) 受益、增加(vi)"], ["garage", "車庫(n)"], ["gas station", "加油站(n)"], ["gate", "大門、柵門、登機門(n)"], ["gather", "聚集、集合(vi) 收集、採集(vt)"], ["general", "一般的、通用的(adj) 將軍(n)"], ["generally", "一般地(adv)"], ["generation", "代、輩、產生、發生(n)"], ["generous", "慷慨的、大方的、寬厚的(adj)"], ["gentle", "和藹的、溫和的、輕柔的(adj)"], ["gentleman", "先生、紳士(n)"], ["geographical", "地理(學)的(adj)"], ["geography", "地理(學)(n)"], ["German", "德國(人)的、德語的(adj) 德國人、德語(n)"], ["Germany", "德國(n)"], ["gesture", "(表達情意的)姿勢、手勢(n)"], ["get in", "進入、坐上、搭乘(片)"], ["get off", "下車、從…下來(片)"], ["get on", "上車(片)"], ["ghost", "鬼(n)"], ["girlfriend", "女朋友(n)"], ["given name", "名字(n)"], ["glasses", "眼鏡(n)"], ["gloves", "手套(n)"], ["glue", "膠水(n)"], ["goal", "球門、進球、得分、目標、目的(n)"], ["god", "神、(God)上帝(n)"], ["gold", "金、黃金(n)"], ["golden", "金(黃)色的、金(製)的、極好的(adj)"], ["golf", "高爾夫(n)"], ["good looking", "美貌的、漂亮的、英俊的(adj)"], ["goodness", "善良、仁慈、親切(n)"], ["goose", "鵝(n)"], ["government", "政府、治理、管理(n)"], ["grand", "盛大的、豪華的、重大的、主要的(adj)"], ["granddaughter", "孫女、外孫女(n)"], ["grandson", "孫子、外孫(n)"], ["grape", "葡萄(n)"], ["grapefruit", "葡萄柚(n)"], ["greedy", "貪食的、貪婪的、貪心的(adj)"], ["greet", "問候、招呼、迎接(vt)"], ["grow up", "長大(片)"], ["guard", "看守、保衛人員、衛兵(n) 防止、防範(against)(vi)"], ["guava", "蕃石榴(n)"], ["guest", "客人、旅客(n)"], ["guide", "嚮導、導遊、指南(n) 給…領路、指導(vt)"], ["guitar", "吉他(n)"], ["gun", "槍、手槍(n)"], ["guy", "男人、傢伙、人(n)"], ["gym", "體操房、健身房(n)"], ["haircut", "理髮、剪髮的方式(n)"], ["hairdresser", "美髮師(n)"], ["hall", "大廳、禮堂、會堂(n)"], ["Halloween", "萬聖節前夕(n)"], ["hammer", "槌、榔頭(n)"], ["handkerchief", "手帕(n)"], ["handle", "柄、把手(n) 拿、操作、處理(vt)"], ["hang", "懸掛、吊(過去式 hung)(v) 吊死、絞死(過去式 hanged)(v)"], ["hanger", "掛衣架(n)"], ["hardly", "簡直不、幾乎不(adv)"], ["heater", "加熱器、暖爐(n)"], ["height", "高、高度、身高、頂點(n)"], ["helicopter", "直升飛機(n)"], ["hen", "母雞(n)"], ["hero", "英雄、男主角(n)"], ["hey", "嘿、喂(interj)"], ["highway", "公路(n)"], ["hike", "遠足、步行(v) 遠足、增加(n)"], ["hiking", "步行、遠足、徒步旅行(n)"], ["hip", "臀部(n)"], ["hippo", "河馬(n)"], ["hippopotamus", "河馬(n)"], ["hire", "雇傭、租用(vt)"], ["hole", "洞、孔、眼(n)"], ["homesick", "想家的、思鄉的(adj)"], ["honesty", "正直、誠實、老實(n)"], ["honey", "蜂蜜、花蜜、親愛的(n)"], ["Hong Kong", "香港(n)"], ["hop", "單腳跳、雙腳跳躍(v)"], ["horrible", "恐怖的(adj)"], ["host", "(款待客人的)主人、東道主(n)"], ["housewife", "家庭主婦(n)"], ["housework", "家務勞動(n)"], ["huge", "巨大的、龐大的(adj)"], ["human", "人的、人類的(adj) 人(n)"], ["humble", "謙遜的、謙恭的、卑賤的(adj)"], ["humid", "有濕氣的、潮濕的(adj)"], ["humor", "幽默、詼諧(n)"], ["humorous", "幽默的、詼諧的(adj)"], ["hunger", "饑餓、渴望(for)(n)"], ["hunt", "狩獵、獵取、追獵(v)"], ["hunter", "獵人、打獵者(n)"], ["ill", "有病的、壞的(adj) 壞、不利地(adv)"], ["imagine", "料想、設想、想像(vt)"], ["impolite", "無禮的、沒規矩的(adj)"], ["importance", "重要、重要性(n)"], ["impossible", "不可能的、辦不到的(adj)"], ["improve", "改善、改進(vt) 改善、好轉(vi)"], ["in back of", "在(某人)之後(片)"], ["in front of", "在…的前面(片)"], ["inch", "英寸(n)"], ["include", "包括、包含(vt)"], ["income", "收入、收益、所得(n)"], ["increase", "(使…)增加、增長(v) 增加、增長(n)"], ["indefinite", "不確定的、不明確的(adj)"], ["independent", "獨立的、自主的(adj)"], ["industry", "工業、產業、行業、勤奮(n)"], ["influence", "影響、感化力(n) 影響(vt)"], ["information", "消息、情報、資訊(n)"], ["ink", "墨水、油墨(n)"], ["insect", "昆蟲(n)"], ["insist", "堅持、堅決主張、堅決要求(on、upon)(v)"], ["inspire", "鼓舞、激起、給…靈感(vt)"], ["instant", "瞬間、時刻(n) 立即的、即刻的(adj)"], ["instant noodle", "速食麵、泡麵(n)"], ["instrument", "器械、器具、儀器、樂器(n)"], ["intelligent", "有智力的、聰明的(adj)"], ["international", "國際的、世界(性)的(adj)"], ["interrupt", "打斷、打擾、中止(vt)"], ["interview", "接見、面試(n) 接見、會見(vt)"], ["introduce", "介紹、引進、傳入(vt)"], ["invent", "發明、創造(v)"], ["invitation", "邀請(n)"], ["invite", "邀請、聘請(vt)"], ["iron", "鐵、熨斗(n) 熨、燙(vt)"], ["Italy", "義大利(n)"], ["jam", "果醬、堵塞(n) 堵塞、卡住(v)"], ["Japan", "日本(n)"], ["Japanese", "日本(人)的、日語的(adj) 日本人、日語(n)"], ["jar", "甕、瓶、罐(n)"], ["jazz", "爵士樂、爵士舞(n)"], ["jealous", "妒忌的、羡慕的、猜忌的(adj)"], ["jeep", "吉普車(n)"], ["jogging", "慢跑(n)"], ["joke", "笑話、玩笑(n) 說笑話、開玩笑(vi)"], ["journalist", "新聞工作者、記者(n)"], ["judge", "法官、審判者(n) 評定、判斷、審判(vt)"], ["kangaroo", "袋鼠(n)"], ["Kaohsiung", "高雄(n)"], ["ketchup", "蕃茄醬(n)"], ["kilometer", "公里、千米(n)"], ["kindergarten", "幼稚園(n)"], ["kingdom", "王國(n)"], ["kitten", "小貓(n)"], ["kitty", "(兒語)小貓(n)"], ["koala", "無尾熊(n)"], ["Korea", "韓國、朝鮮(n)"], ["Korean", "韓國(人、語)的(adj) 韓國人、韓語(n)"], ["KTV", "卡拉OK(n)"], ["lack", "缺乏、不足(n)"], ["lady", "淑女、貴婦、夫人、小姐(n)"], ["lamb", "小羊(肉)、羔羊(肉)(n)"], ["lane", "小路、小徑、巷(n)"], ["lantern", "燈籠、提燈(n)"], ["Lantern Festival", "元宵節(n)"], ["last name", "姓(n)"], ["law", "法律、法規、法則(n)"], ["lawyer", "律師(n)"], ["lay", "放、置、產(卵)(v)"], ["LD", "雷射光碟(n)"], ["leaf", "葉子、(書刊的)張、頁(複數 leaves)(n)"], ["length", "長度、距離、一段、一節(n)"], ["lettuce", "萵苣(n)"], ["level", "水平、等級、水平面(n)"], ["lid", "蓋子、眼瞼(n)"], ["lift", "提、舉起(v) 電梯、上升、免費搭車(n)"], ["lightning", "閃電(n)"], ["limit", "限度、限制、(複)範圍(n) 限定、限制(vt)"], ["link", "(鏈)環、連結、連接(n) 連結、連接(v)"], ["liquid", "液體的、流動性的(adj)"], ["loaf", "一條(塊)麵包(n)"], ["local", "本地的、局部的(adj)"], ["location", "場所、位置、地點(n)"], ["lock", "鎖(n) 鎖、(被)鎖上(v)"], ["locker", "(有鎖的)小櫥櫃(n)"], ["London", "倫敦(n)"], ["Los Angeles", "洛杉磯(n)"], ["loser", "損失者、失敗者(n)"], ["loss", "遺失、喪失、損失、虧損(n)"], ["lot", "許多、大量、命運(n)"], ["lovely", "可愛的、秀美的(adj)"], ["lunch box", "午餐盒、飯盒(n)"], ["lychee", "荔枝(n)"], ["ma'am", "太太、小姐(對女士的稱呼)(n)"], ["mad", "發瘋的、瘋狂的、惱火的(adj)"], ["magazine", "雜誌、期刊(n)"], ["magician", "魔法師、魔術師(n)"], ["main", "主要的、最重要的(adj)"], ["major", "較大的、主要的(adj) 專業、主修(n)"], ["male", "雄的、男性的(adj) 男性(n)"], ["mall", "購物中心、步行街(n)"], ["manager", "管理者、經理(n)"], ["Mandarin", "標準中國話(n)"], ["mango", "芒果(n)"], ["manner", "禮貌、方式(n)"], ["marker", "作記號的人、記分員、麥克筆(n)"], ["marriage", "結婚、婚姻(n)"], ["marry", "結婚(vi) 娶、嫁、和…結婚(vt)"], ["mask", "面具、面罩、口罩(n) 遮住、遮蓋(vt)"], ["mass", "眾多、大量、團、塊(n)"], ["master", "主人、大師、能手、碩士(n) 精通(vt)"], ["mat", "席子、墊子(n)"], ["match", "火柴、比賽(n)"], ["material", "材料、原料(n) 物質的、實體的(adj)"], ["maximum", "最大限度、最大量(n) 最高的、最大的(adj)"], ["meaning", "意義、意思(n)"], ["measure", "量、測量(vt) 有…長(或寬、高等)(vi)"], ["measurement", "測量(n)"], ["mechanic", "機械工、技工(n)"], ["melon", "(各種的)瓜(n)"], ["member", "成員、會員(n)"], ["memory", "記憶、記憶力、回憶、紀念(n)"], ["men's room", "男廁(n)"], ["message", "訊息、便條、口信(n)"], ["metal", "金屬(n) 金屬的(adj)"], ["meter", "米、公尺(n)"], ["method", "方法、辦法(n)"], ["microwave", "微波(n)"], ["microwave oven", "微波爐(n)"], ["Mid-Autumn Festival", "中秋節(n)"], ["middle", "中間、中部(n) 中間的、中央的(adj)"], ["midnight", "午夜(n)"], ["milk shake", "奶昔(n)"], ["minor", "較小的、較少的、較次要的(adj)"], ["minus", "減(prep)"], ["mirror", "鏡子(n)"], ["missing", "失去的、不見了的(adj)"], ["mix", "(使…)混合、混淆(vt) 相混合(vi)"], ["model", "模型、模範、模特兒、型號(n)"], ["monster", "怪物、妖怪(n)"], ["moon cake", "月餅(n)"], ["mop", "拖把(n) 用拖把拖洗、擦(v)"], ["mosquito", "蚊子(n)"], ["Mother's Day", "母親節(n)"], ["motion", "運動、活動、轉動(n)"], ["mountain-climbing", "登山、爬山(n)"], ["movement", "運動、活動、移動(n)"], ["movie star", "電影明星(n)"], ["movie theater", "電影院(n)"], ["MRT", "大眾捷運系統(n)"], ["MTV", "音樂電視(n)"], ["mud", "泥(n)"], ["musician", "音樂家(n)"], ["nail", "釘子、指甲(n) 釘、釘牢(vt)"], ["napkin", "餐巾、尿布(n)"], ["narrow", "狹窄的(adj)"], ["nation", "國家、民族(n)"], ["nationality", "國籍、國民性(n)"], ["natural", "自然的、天然的(adj)"], ["nature", "大自然、性質(n)"], ["naughty", "調皮的(adj)"], ["nearly", "幾乎、差不多(adv)"], ["necessary", "必要的、必然的(adj)"], ["necklace", "項圈、項鍊(n)"], ["necktie", "領帶(n)"], ["needle", "針(n)"], ["negative", "負的、負面的(adj) 底片(n)"], ["neighbor", "鄰居(n)"], ["neither", "也不(conj、adv) 兩者皆不的(adj)"], ["neither … nor", "既不…也不…(片)"], ["nephew", "侄子、外甥(n)"], ["nervous", "神經緊張的、情緒不安的(adj)"], ["nest", "巢、窩、穴(n)"], ["New Year's Day", "新年元旦(n)"], ["New York", "紐約(n)"], ["newspaper", "報紙(n)"], ["next to", "緊挨著(片)"], ["nice looking", "美貌的、漂亮的、英俊的(adj)"], ["niece", "侄女、外甥女(n)"], ["nineteenth", "第十九、十九分之一(n)"], ["ninetieth", "第九十、九十分之一(n)"], ["noisy", "喧鬧的、吵雜的(adj)"], ["none", "沒有一人(或物)、沒有一點兒(pron) 毫不、毫無(adv)"], ["noodles", "麵條(n)"], ["nor", "也不、也沒有(conj)"], ["northern", "北方的、北部的(adj)"], ["not only … but also", "不僅…而且…(片)"], ["note", "便條、筆記、註解(n) 記錄、留意(vt)"], ["nut", "堅果(如核桃、栗子等)(n)"], ["obey", "順從、聽從(vt)"], ["object", "物體、實物、目的、目標(n) 反對、不贊成(vi)"], ["occupation", "職業、佔有、居住、佔領(n)"], ["occur", "發生、出現、浮現(vi)"], ["ocean", "洋、海洋(n)"], ["offer", "給予、提供、提出(vt) 提供物、提議(n)"], ["official", "官方的、正式的(adj) 官員、行政人員(n)"], ["oh", "噢、啊、唉(interj)"], ["oh-oh", "哦哦(interj)"], ["omit", "省略、刪節、遺漏(vt)"], ["oneself", "自己、自身、親自(pron)"], ["onion", "洋蔥(n)"], ["oops", "噢！糟糕！(interj)"], ["operate", "運轉、動手術(vi) 操作、操縱、進行(vt)"], ["operation", "運轉、手術、經營、操作(n)"], ["opinion", "意見、看法(n)"], ["ordinary", "一般的、普通的、平淡的(adj)"], ["organize", "組織、籌辦(vt)"], ["out of", "出於…、向…外(片)"], ["outer space", "外太空(n)"], ["oven", "烤爐、烤箱(n)"], ["overpass", "陸橋、高架道路(n)"], ["overseas", "(在)海外的、(在)國外的(adj) 在海外、在國外(adv)"], ["over-weight", "超重(n)"], ["owner", "所有人、物主(n)"], ["ox", "公牛、牛(n)"], ["pain", "疼痛、痛苦、悲痛、(複)辛苦(n)"], ["painful", "疼痛的、辛苦的(adj)"], ["painter", "畫家、油漆匠(n)"], ["pajamas", "睡衣(n)"], ["pale", "蒼白的、灰白的、淡的(adj)"], ["pan", "平底鍋(n)"], ["panda", "熊貓(n)"], ["papaya", "木瓜(n)"], ["pardon", "原諒、饒恕(vt) 原諒、對不起(n)"], ["Paris", "巴黎(n)"], ["parking lot", "停車場(n)"], ["parrot", "鸚鵡(n)"], ["particular", "特定的、特別的、挑剔的(adj)"], ["partner", "搭檔、夥伴(n)"], ["passenger", "乘客、旅客(n)"], ["paste", "糊狀物、麵團(n)"], ["path", "小路、小徑(n)"], ["patient", "忍耐的、有耐心的(adj) 病人(n)"], ["pattern", "型、模式、樣式、花樣、圖案(n)"], ["pause", "暫停、中止(vi)"], ["peace", "和平、和睦、平靜(n)"], ["peaceful", "和平的、平靜的、安寧的(adj)"], ["peach", "桃子、桃色(n)"], ["pear", "梨(n)"], ["pencil box", "鉛筆盒(n)"], ["pencil case", "鉛筆盒(n)"], ["pepper", "胡椒粉(n)"], ["perfect", "完美的、完滿的、(語法)完成的(adj) 使…完美(vt)"], ["period", "(一段)時間、時期、句號(n)"], ["personal", "個人的、私人的、親自的(adj)"], ["Philippines", "菲律賓(n)"], ["photo", "相片(n)"], ["photograph", "照片(n)"], ["photographer", "攝影師、攝影者(n)"], ["pigeon", "鴿子(n)"], ["pile", "一堆、一疊(n) 把…堆積(v)"], ["pillow", "枕頭(n)"], ["pin", "大頭針、別針(n) 別住、釘住(vt)"], ["pineapple", "鳳梨(n)"], ["pingpong", "乒乓球(n)"], ["pipe", "管子、管道、煙斗(n) 用管道輸送(vt)"], ["plain", "平原(n) 樸素的、簡單的、平常的(adj)"], ["plant", "植物、工廠(n) 種植(vt)"], ["plastic", "塑膠的(adj)"], ["plate", "盤子、平板(n) 鍍上(vt)"], ["platform", "月臺(n)"], ["pleasant", "令人愉快的、討人喜歡的(adj)"], ["pleased", "滿意的、高興的(adj)"], ["pleasure", "高興、樂趣、喜悅(n)"], ["plus", "加(prep)"], ["pocket", "衣袋、小袋、口袋(n) 袖珍的、小型的(adj)"], ["poem", "詩(n)"], ["poison", "毒(n)"], ["police officer", "警官(n)"], ["police station", "警察局(n)"], ["policeman", "警察(n)"], ["pollute", "弄髒、污染(v)"], ["pollution", "污染(n)"], ["pond", "池塘(n)"], ["pool", "水池(n)"], ["pop music", "流行音樂(n)"], ["population", "人口(n)"], ["port", "港口(n)"], ["position", "位置、職位、姿勢、立場(n)"], ["positive", "確信的、正面的、積極的(adj)"], ["possessive", "擁有的、所有格的(adj)"], ["post", "張貼、公告(n) 支柱、職位(n)"], ["pot", "罐、壺、鍋(n)"], ["potato", "馬鈴薯(n)"], ["power", "權力、勢力、力(量)、功率、動力(n)"], ["praise", "稱讚、表揚(n) 讚揚、表揚(vt)"], ["pray", "請求、懇求、祈求、禱告(v)"], ["precious", "珍貴的、寶貴的(adj)"], ["prefer", "更喜歡、寧願(vt)"], ["preposition", "介系詞(n)"], ["president", "總統、校長、會長、總裁、主席(n)"], ["press", "壓、按、壓迫(vt) 報刊、出版社、新聞界(n)"], ["priest", "僧侶、牧師、神職者(n)"], ["primary", "第一的、主要的(adj)"], ["primary school", "小學(n)"], ["prince", "王子、親王(n)"], ["princess", "公主、王妃(n)"], ["principal", "校長(n)"], ["print", "印刷、出版(vt) 印刷品、字體(n)"], ["printer", "印表機(n)"], ["prison", "監獄(n)"], ["prisoner", "囚犯(n)"], ["private", "私人的、個人的(adj)"], ["prize", "獎(賞)、獎品、獎金(n) 珍視、珍惜(vt)"], ["probably", "大概、或許、很可能(adv)"], ["produce", "生產、製造、產生(vt) 農產品(n)"], ["product", "產品(n)"], ["production", "生產、產量、產品(n)"], ["professor", "教授(n)"], ["progress", "前進、進步、進展(n) 前進、進步(vi)"], ["project", "專案、項目、計畫(n)"], ["promise", "允諾、答應(vt) 承諾(n)"], ["pronoun", "代名詞(n)"], ["pronounce", "發音、宣佈(vt)"], ["protect", "保護、保衛(v)"], ["prove", "證明、證實(vt) 結果是、果然是(vi)"], ["provide", "供給、提供(vt)"], ["pump", "抽水機、幫浦(n)"], ["pumpkin", "南瓜(n)"], ["punish", "懲罰、處罰(vt)"], ["puppy", "小狗(n)"], ["purpose", "目的、意圖、用途(n)"], ["purse", "錢包(n)"], ["puzzle", "(使)迷惑、(使)為難(v) 謎題、難題(n)"], ["quality", "品質、特徵(n)"], ["quarter", "四分之一、季度、一刻鐘(n)"], ["quickly", "快、迅速地(adv)"], ["quit", "停止、放棄、辭(職)(v)"], ["quiz", "小考、測驗(n)"], ["race", "比賽、種族(n) 賽跑、全速前進(v)"], ["railroad", "鐵路(n)"], ["raincoat", "雨衣(n)"], ["raise", "舉起、提高、增加、籌集、飼養、提出(vt)"], ["rapid", "快的、迅速的(adj)"], ["rare", "稀有的、三分熟的(adj)"], ["rat", "鼠、叛徒(n)"], ["rather", "相當、有一點兒、寧願(adv)"], ["reach", "到達、伸出(vt) 達到、延伸(vi)"], ["reading", "閱讀、朗讀(n)"], ["reading test", "閱讀測驗(n)"], ["realize", "實現、認清、了解(v)"], ["reason", "理由、原因、理性(n) 推理(vt)"], ["receive", "接見、接收、收到(v)"], ["recent", "新近的、近來的(adj)"], ["record", "記錄、記載、唱片(n) 記錄、錄下(vt)"], ["recover", "重新獲得、恢復(v)"], ["rectangle", "長方形(n)"], ["recycle", "回收、再利用(v) 再循環、再生(n)"], ["reflexive", "反身代名詞(n)"], ["refuse", "拒絕、謝絕(v)"], ["regard", "看待、把…視為(vt) (複)敬意、問候(n)"], ["regret", "遺憾、後悔(n) 遺憾、後悔(v)"], ["regular", "有規律的、有規則的、定期的(adj)"], ["reject", "拒絕、駁回、捨棄(vt)"], ["relative", "相對的(adj) 親戚(n)"], ["remind", "提醒、使…想起(vt)"], ["rent", "租金(n) 租用(vt) 出租(vi)"], ["repair", "修理、修補(n) 修理、修補(vt)"], ["reply", "回答、答覆(n) 回答、答覆(v)"], ["report", "報告(書)(n)"], ["Republic of China", "中華民國(n)"], ["require", "需要、規定、要求(vt)"], ["respect", "尊敬、尊重(vt) 尊重、敬意(n)"], ["responsible", "有責任的、應負責任的(adj)"], ["result", "結果、成果、成績(n) 導致(in)、起因於(from)(vi)"], ["return", "返回、歸來(n) 歸還、送還、回報(vt)"], ["review", "評論、回顧、復習(n) 審查、復習、評論(vt)"], ["revise", "修訂、校訂、修正(v)"], ["rise", "起立、起身、上升(v)"], ["rob", "搶劫、剝奪(v)"], ["robot", "機器人(n)"], ["rock", "岩石、石塊、搖滾(音樂)(n) 搖(動)(vt)"], ["role", "角色、作用、任務(n)"], ["roll", "(使…)滾動、轉動、捲(v) (一)卷、麵包卷(n)"], ["roller skating", "輪式溜冰(n)"], ["Rome", "羅馬(n)"], ["roof", "屋頂(n)"], ["root", "根(部)(n)"], ["rope", "繩、索(n)"], ["row", "(一)排、行、列(n) 划船(v)"], ["rub", "摩擦、擦拭(v)"], ["rubber", "橡皮、橡膠(製品)(n)"], ["rubber band", "橡皮筋(n)"], ["rude", "無禮的、野蠻的(adj)"], ["running", "奔跑的、流動的(adj)"], ["running nose", "流鼻水(n)"], ["rush", "衝、奔、倉促行動(vi) 催促(vt)"], ["Russia", "俄羅斯(n)"], ["Russian", "俄羅斯(人)的、俄語的(adj) 俄羅斯人、俄語(n)"], ["safety", "安全、平安(n)"], ["sail", "帆、航行(n) 航行(vi)"], ["sailing", "航行、出航(n)"], ["sailor", "水手(n)"], ["salesman", "銷售員(n)"], ["sample", "樣品、標本(n) 從…抽樣(vt)"], ["San Francisco", "舊金山(n)"], ["sand", "沙、(複)沙灘(n)"], ["satisfied", "滿意的(adj)"], ["satisfy", "使…滿足、使…滿意(vt)"], ["saucer", "碟子(n)"], ["scared", "驚嚇的、受驚的、恐懼的(adj)"], ["scarf", "圍巾(n)"], ["scene", "(戲劇等的)一場、鏡頭、地點、景色、舞臺(n)"], ["schoolmate", "校友、同學(n)"], ["science", "科學、學科(n)"], ["scientist", "科學家(n)"], ["score", "得分、分數、二十(n) 得分、記分(vt)"], ["screen", "螢幕、屏風、簾(n) 掩蔽、遮蔽(vt)"], ["seafood", "海鮮(n)"], ["search", "搜、尋、探查(v) 搜尋(n)"], ["second grade", "二年級(n)"], ["secondary", "第二的、次等的(adj)"], ["secret", "秘密的、機密的(adj) 秘密、秘訣(n)"], ["secretary", "秘書、書記、大臣(n)"], ["section", "切斷、斷片、組件、區域、部分(n)"], ["seed", "種子(n)"], ["seek", "尋找、追求(v)"], ["seem", "好像、似乎(vi)"], ["seesaw", "蹺蹺板(n)"], ["select", "挑選、選擇(v)"], ["selfish", "自私的、自利的(adj)"], ["semester", "學期、半學年(n)"], ["sense", "感官、感覺、意義、判斷力(n) 覺得、意識到(vt)"], ["separate", "分離的、分開的(adj) (使…)分開、分離(v)"], ["servant", "僕人(n)"], ["serve", "為…服務、招待、符合(v) 服務、供職、起作用(vi)"], ["service", "服務、效勞(n) 維修、保養(vt)"], ["set", "(一)套、副(n) 放、安置、樹立、規定(vt)"], ["seventeenth", "第十七、十七分之一(n)"], ["shake", "搖動、握手(v)"], ["shark", "鯊魚(n)"], ["sharp", "鋒利的、銳利的、鮮明的、急劇的(adj)"], ["sheet", "(一)張、片、薄片、床單(n)"], ["shelf", "架子、棚(n)"], ["shine", "照耀、發光、發亮、閃耀(v)"], ["shock", "震動、震驚、休克(n) (使)震動、(使)震驚(v)"], ["shoes", "鞋(n)"], ["shoot", "嫩枝、苗(n) 射擊、拍攝(v)"], ["shopping", "購物(n)"], ["shore", "岸、濱(n)"], ["shorts", "短褲(n)"], ["shot", "(shoot 的過去式和過去分詞)(v) 開槍、射擊、射門、投籃(n)"], ["shout", "呼喊、呼叫(v) 呼喊、呼叫(n)"], ["shower", "陣雨、淋浴(n)"], ["shrimp", "小蝦(n)"], ["shut", "關(閉)(v)"], ["sight", "視力、視覺、景象、(複)風景(n)"], ["sign", "標記、符號、招牌、徵兆(n) 簽(名)、簽署(v)"], ["silence", "寂靜、沈默(n)"], ["silent", "寂靜的、沈默的(adj)"], ["silly", "傻的、糊塗的(adj)"], ["silver", "銀色的(adj) 銀、銀色(n)"], ["similar", "相似的、類似的(to)(adj)"], ["simply", "簡單地、僅僅、只不過(adv)"], ["sincere", "真誠的、誠摯的、衷心的(adj)"], ["Singapore", "新加坡(n)"], ["singing", "(歌)唱、歌聲(n)"], ["single", "單一的、單個的、單身的(adj)"], ["sink", "沉、沉沒、下陷(v)"], ["sixteenth", "第十六、十六分之一(n)"], ["skate", "溜冰鞋、冰刀(n)"], ["skating", "滑冰、溜冰(n)"], ["ski", "滑雪板(n) 滑雪(v)"], ["skiing", "滑雪(運動)(n)"], ["skill", "技能、技巧、手藝(n)"], ["skillful", "靈巧的、熟練的(adj)"], ["skin", "皮(膚)、外皮(n)"], ["skinny", "皮包骨的、骨瘦如柴的(adj)"], ["sleepy", "睏的、想睡的(adj)"], ["slender", "細長的、修長的、苗條的(adj)"], ["slide", "滑行、滑動、偷溜(v)"], ["slim", "苗條的、纖細的、修長的(adj)"], ["slippers", "拖鞋(n)"], ["snail", "蝸牛(n)"], ["sneakers", "膠底運動鞋(n)"], ["sneaky", "鬼祟的、卑劣的(adj)"], ["snowman", "雪人(n)"], ["snowy", "下雪的(adj)"], ["soap", "肥皂(n)"], ["soccer", "(英式)足球(n)"], ["social", "社交的、社會的(adj)"], ["social science", "社會科學(n)"], ["society", "社會、社、團體、協會(n)"], ["soda", "汽水(n)"], ["soft", "軟的、溫柔的、不含酒精的(adj)"], ["soft drink", "碳酸飲料、不含酒精飲料(n)"], ["softball", "壘球(n)"], ["soldier", "士兵、軍人(n)"], ["solve", "解決、解答(v)"], ["sore throat", "喉嚨痛(n)"], ["sort", "種類、類別(n) 分類、整理(vt)"], ["soul", "靈魂、心靈(n)"], ["sour", "酸的(adj)"], ["southern", "南方的、南部的(adj)"], ["soy-sauce", "醬油(n)"], ["spaghetti", "義大利麵條(n)"], ["speaker", "說話者、演講者、揚聲器(n)"], ["speech", "說話、言語、演說、講話(n)"], ["speed", "速度、迅速(n) 迅速前進、加速(vi)"], ["spider", "蜘蛛(n)"], ["spirit", "精神、氣概、志氣、(複)心情、烈酒(n)"], ["sport", "(體育)運動、(複)運動會(n)"], ["spread", "攤開、塗敷、傳播(vt) 傳開、蔓延(vi)"], ["stage", "階段、時期、舞臺(n)"], ["stairs", "樓梯(n)"], ["stamp", "郵票、印、圖章(n) 在…上蓋印(vt)"], ["stamp collecting", "集郵(n)"], ["standard", "標準、規格(n) 標準的(adj)"], ["state", "狀態、情況、國家、州(n)"], ["stationery", "文具、信紙(n)"], ["stationery store", "文具店(n)"], ["steal", "偷、竊取(v)"], ["steam", "(蒸)汽(n) 冒蒸汽(vi)"], ["step", "步、腳步、步驟、臺階(n) 跨步、踩、踏上(on)(vi)"], ["stick", "棍、手杖(n) 刺、戳、黏貼(過去式 stuck)(vt)"], ["stingy", "吝嗇的、小氣的(adj)"], ["stomachache", "肚子痛、胃痛(n)"], ["stone", "石頭、寶石(n)"], ["storm", "暴風雨、暴風雪(n) 下暴雨、起風暴(vi)"], ["stormy", "暴風雨的、暴躁的、激烈的(adj)"], ["stove", "爐、火爐、電爐(n)"], ["straight", "直的、筆直的、直截了當的(adj) 直接、一直、立即(adv)"], ["straw", "稻草、麥桿、吸管(n)"], ["strawberry", "草莓(n)"], ["stream", "小河、溪、流動、潮流(n)"], ["strike", "打、襲擊、使突然想到(vt) 罷工、(鐘等)敲響(vi)"], ["struggle", "奮鬥、努力、掙扎(n) 奮鬥、努力、掙扎(vi)"], ["style", "作風、風格、樣式(n)"], ["subject", "主題、題目、學科、主詞(n)"], ["submarine", "潛艇(n)"], ["subway", "地鐵(n)"], ["succeed", "成功、繼承(vi) 接替、接…之後(vt)"], ["success", "成就、成功(n)"], ["successfully", "成功地(adv)"], ["such", "這樣的、這種的(adj) 那麼(adv)"], ["sudden", "突然的、意外的(adj)"], ["suddenly", "突然地(adv)"], ["suggest", "建議、提議、暗示、表明(vt)"], ["suit", "合適、適合(vt) 一套衣服(或西服)、訴訟(n)"], ["suitcase", "衣箱、小提箱、行李箱(n)"], ["supper", "晚餐(n)"], ["support", "支持、擁護、供養、支撐(vt) 支持、支撐(n)"], ["surf", "海浪、拍岸浪(n) 衝浪(vt)"], ["surface", "表面、面、外表、外觀(n)"], ["surfing", "衝浪、上網(n)"], ["survive", "活下來、倖存(vi) 從…中挺過來(vt)"], ["swallow", "吞咽(v) 燕子(n)"], ["swan", "天鵝(n)"], ["sweep", "(打)掃、掠過、掃視(v)"], ["swimming", "游泳(n)"], ["swimsuit", "游泳衣、泳裝(n)"], ["swing", "搖擺、盪鞦韆、迴旋(v)"], ["symbol", "象徵、符號、標誌(n)"], ["table cloth", "桌布(n)"], ["table tennis", "乒乓球、桌球(n)"], ["tableware", "餐具(n)"], ["Taichung", "台中(n)"], ["tail", "尾巴、後部(n)"], ["Tainan", "台南(n)"], ["Taipei", "台北(n)"], ["Taiwanese", "台灣的(adj) 台灣人(n)"], ["talkative", "多嘴的、饒舌的(adj)"], ["tangerine", "椪柑、橘(n)"], ["tank", "槽、戰車、坦克車(n)"], ["tape recorder", "錄音機(n)"], ["task", "任務、工作(n)"], ["Teacher's Day", "教師節(n)"], ["teapot", "茶壺(n)"], ["tear", "眼淚(n) 撕裂、撕破(v)"], ["temperature", "溫度(n)"], ["temple", "神殿、寺廟、教堂(n)"], ["tent", "帳篷(n)"], ["term", "學期、期限、期間、術語(n)"], ["terrible", "可怕的、駭人的、糟糕的(adj)"], ["terrific", "極好的、了不起的、令人恐怖的(adj)"], ["textbook", "教科書、課本(n)"], ["thanksgiving", "感謝、感恩祈禱(n)"], ["Thanksgiving Day", "感恩節(n)"], ["therefore", "因此、所以(adv)"], ["thick", "厚的、粗的、稠的、濃的(adj)"], ["thief", "小偷、賊(n)"], ["thirteenth", "第十三、十三分之一(n)"], ["thirtieth", "第三十(num) 三十分之一(n)"], ["thought", "思想、想法(n)"], ["throat", "咽喉、喉嚨(n)"], ["through", "穿過、通過、經由、從頭到尾(prep) 從頭到尾、徹底(adv)"], ["throughout", "遍及、貫穿(prep) 到處、自始至終(adv)"], ["throw", "扔、丟(v)"], ["thumb", "拇指(n)"], ["thunder", "雷(n) 打雷(v)"], ["thus", "如此、這樣、因此(adv)"], ["tidy", "整潔的、整齊的(adj)"], ["tie", "拴、紮、捆、繫上(vt) 領帶、領結、聯繫(n)"], ["till", "直到(…為止)(prep、conj)"], ["tiny", "極小的、微小的(adj)"], ["tip", "頂、尖端、小費、秘訣(n) 使傾斜、給小費(vt)"], ["title", "標題、頭銜(n)"], ["toast", "烤麵包片、吐司(n)"], ["toe", "腳趾、腳尖(n)"], ["tofu", "豆腐(n)"], ["toilet", "浴室、廁所(n)"], ["Tokyo", "東京(n)"], ["tongue", "舌頭、語言(n)"], ["tool", "工具(n)"], ["toothache", "牙痛(n)"], ["toothbrush", "牙刷(n)"], ["top", "頂(端)、上部(n) 最高的(adj)"], ["topic", "題目、話題、主題(n)"], ["total", "總計(v)"], ["tour", "旅行、遊歷(n) 旅行、遊歷(v)"], ["toward", "(表示方向)朝、向(prep)"], ["tower", "塔(樓)(n)"], ["trace", "追蹤、跟蹤(vt) 痕跡、蹤跡(n)"], ["track", "跑道、小路、軌道、足跡(n) 跟蹤、追蹤(vt)"], ["trade", "貿易、商業、行業、職業(n) 相互交換(vt)"], ["tradition", "傳統、慣例(n)"], ["traditional", "傳統的、慣例的(adj)"], ["traffic jam", "交通阻塞(n)"], ["traffic light", "交通號誌燈(n)"], ["traffic lights", "紅綠燈、交通燈(n)"], ["traffic sign", "交通號誌(n)"], ["train station", "火車站(n)"], ["transportation", "運輸、交通(n)"], ["trap", "陷阱、圈套、詭計(n)"], ["trash can", "垃圾桶(n)"], ["travel", "旅行、行進(vi) 旅行(n)"], ["traveling", "旅行的、遊歷的(adj)"], ["treasure", "財寶、寶藏(n)"], ["treat", "對待、處理、醫治、款待(vt) 款待、請客(n)"], ["triangle", "三角形、三角板(n)"], ["trick", "欺詐、哄騙(vt) 詭計、把戲、戲法、惡作劇(n)"], ["trousers", "褲子、長褲(n)"], ["trumpet", "喇叭、號(n)"], ["trust", "信任、信賴、相信(n) 信任、信賴、相信(v)"], ["truth", "真相、真理、真實性(n)"], ["T-shirt", "T恤(n)"], ["tub", "桶、盆、浴盆(n)"], ["tummy", "(兒語)肚子(n)"], ["tunnel", "隧道、地道、坑道(n)"], ["turkey", "火雞(n)"], ["turtle", "海龜、龜(n)"], ["twelfth", "第十二(num) 十二分之一(n)"], ["twentieth", "第二十(num) 二十分之一(n)"], ["twice", "兩倍、兩次(adv)"], ["type", "類型、種類、品種(n) 打字(v)"], ["typewriter", "打字機(n)"], ["ugly", "醜陋的、難看的、難聽的(adj)"], ["uh-uh", "嗯嗯(interj)"], ["underlie", "位於…的下面(v)"], ["underpass", "地下道(n)"], ["underwear", "內衣(n)"], ["under-weight", "重量不足的(adj)"], ["unfriendly", "不友善的(adj)"], ["unique", "唯一的、獨特的、獨一無二的(adj)"], ["unit", "單位、單元(n)"], ["universe", "宇宙(n)"], ["university", "大學(n)"], ["upon", "在…上、憑、靠、根據(prep)"], ["upstairs", "在樓上、往樓上(adv) 樓上的(adj)"], ["used", "用過的、舊的(adj) 習慣於…的(adj)"], ["usual", "通常的、平常的(adj)"], ["Valentine's Day", "西洋情人節(n)"], ["valley", "山谷(n)"], ["valuable", "貴重的、有價值的(adj) 貴重物品(n)"], ["value", "價值、價格、重要性、(複)價值觀(n) 尊重、重視、評價(vt)"], ["VCR", "錄影機(n)"], ["verb", "動詞(n)"], ["vest", "背心(n)"], ["victory", "勝利(n)"], ["village", "村莊、鄉村(n)"], ["vinegar", "醋(n)"], ["violin", "小提琴(n)"], ["visitor", "參觀者、訪問者(n)"], ["vocabulary", "字彙、生字(n)"], ["volleyball", "排球(n)"], ["vote", "投票(v)"], ["voter", "投票者、有投票權者(n)"], ["waist", "腰、腰部(n)"], ["walkman", "隨身聽(n)"], ["wallet", "錢包、皮夾(n)"], ["war", "戰爭、鬥爭(n)"], ["washing machine", "洗衣機(n)"], ["waste", "浪費、毀壞(v)"], ["waterfall", "瀑布(n)"], ["watermelon", "西瓜(n)"], ["wave", "揮動、向…揮手示意(vt) 浪、波濤、(光、電等的)波(n)"], ["wedding", "婚禮(n)"], ["weekday", "週一到週五的通稱、平日(n)"], ["weight", "重量、體重(n)"], ["western", "西的、西方的、來自西方的(adj)"], ["whale", "鯨魚(n)"], ["whatever", "無論什麼、不管什麼(pron) 無論什麼樣的(adj)"], ["wheel", "輪、車輪(n)"], ["while", "在(當)…的時候、和…同時(conj)"], ["whole", "全部的、整體的(adj) 全部、整體(n)"], ["whom", "(who 的受格)誰(pron)"], ["wide", "寬闊的、廣泛的(adj) 全部地、充分地(adv)"], ["wild", "野生的、未馴化的、荒蕪的、瘋狂的(adj)"], ["willing", "願意的、樂意的、心甘情願的(adj)"], ["wine", "(葡萄)酒(n)"], ["wing", "翅膀(n)"], ["winner", "贏家、勝利者(n)"], ["within", "在…內(prep)"], ["wolf", "狼(n)"], ["women's room", "女廁所(n)"], ["wonder", "感到驚訝、詫異(vi) 想知道(vt)"], ["wood", "木材、木頭(n)"], ["wooden", "木製的(adj)"], ["woods", "樹林、森林(n)"], ["worried", "煩惱的、擔心的(adj)"], ["worth", "值得(prep)"], ["wound", "創傷、傷口(n) 使受傷、傷害(vt)"], ["wow", "哎喲、哇(interj)"], ["wrist", "手腕(n)"], ["yard", "院子、場地(n)"], ["youth", "青春、青少年時期、年輕人(n)"], ["Youth Day", "青年節(n)"], ["yucky", "令人厭惡的、噁心的(adj)"], ["yummy", "好吃的、美味的(adj)"], ["zebra", "斑馬(n)"], ["zero", "零(num) 零點、零度(n)"], ["false", "假的、錯誤的(adj)"]];
+const N = WORDS.length;
+const INTERVAL = [0,1,2,4,7,15,30,60];
+const KNOWN_BOX = 5;
+const LS_KEY = "seal-vocab-v1";
+
+/* ===== economy (all tunable numbers live here) ===== */
+const ECON = {
+  perfect:10, hint:6, help:4, both:3, wrong:5, reveal:0, retryFactor:.5,
+  dailyBonus:30, tipChance:.15, tipMin:2, tipMax:5,
+  prices:[30,80,150,250,400,600], grand:1500
+};
+const CRUST = [
+  {n:"原味",a:"#F2D49A",b:"#E0AE63"},{n:"抹茶",a:"#CFE0A3",b:"#9CBB66"},{n:"草莓",a:"#F9CBD3",b:"#EC9AAC"},
+  {n:"可可",a:"#C49A7C",b:"#93664B"},{n:"芋頭",a:"#DCCBEE",b:"#AC93CF"},{n:"蝶豆花",a:"#C6DAF4",b:"#86A9DE"},{n:"彩虹",a:"rainbow",b:"#E4A9C4"}];
+const STOVE = [
+  {n:"鐵板",a:"#59646E",b:"#3F4850"},{n:"薄荷",a:"#9ADCCB",b:"#6FBFA9"},{n:"櫻花",a:"#F5BCCB",b:"#E393A9"},
+  {n:"木紋",a:"#C08B5C",b:"#9A6A40"},{n:"大理石",a:"#ECEBF1",b:"#C9C8D3"},{n:"星空",a:"#33407A",b:"#232C58",stars:1},{n:"金色",a:"#EBCB6A",b:"#C9A23E"}];
+const STICK = [
+  {n:"木頭",a:"#C99A6B"},{n:"竹子",a:"#9CC46A"},{n:"薄荷",a:"#7FD1B9"},{n:"粉紅",a:"#FF9EB5"},
+  {n:"海洋藍",a:"#6FB3E8"},{n:"彩虹糖",a:"rainbow"},{n:"魔法棒",a:"#E9C55A",star:1}];
+const DECOR = ["空空的牆","條紋遮陽棚","小盆栽","燈串","單字海報","雪景窗","霓虹招牌"];
+const CATS = [
+  {k:"crust",t:"餅皮口味",list:CRUST,equip:true},
+  {k:"stove",t:"爐台",list:STOVE,equip:true},
+  {k:"stick",t:"T 字刮棒",list:STICK,equip:true},
+  {k:"decor",t:"店面裝潢",list:DECOR.map(n=>({n})),equip:false}];
+
+/* ===== customers (original simple animals) ===== */
+const CUST = [
+  {n:"小貓",w:10,f:"#F6C38B",e:"cat",ei:"#F6A86B"},
+  {n:"小兔",w:10,f:"#F4F1F6",e:"rabbit",ei:"#F7B9C8"},
+  {n:"小熊",w:10,f:"#C9946A",e:"round",ei:"#A8714A"},
+  {n:"小狗",w:10,f:"#EBD3B0",e:"floppy",ei:"#C59D6C"},
+  {n:"倉鼠",w:10,f:"#F2D3A2",e:"small",ei:"#E5B37A",cheeks:1},
+  {n:"熊貓",w:4,f:"#FFFFFF",e:"round",ei:"#2D2D33",panda:1},
+  {n:"狐狸",w:4,f:"#F09B57",e:"cat",ei:"#3A2A22",muzzle:1},
+  {n:"小雞",w:4,f:"#FFE07A",e:"tuft",ei:"#F5C744",beak:1},
+  {n:"企鵝",w:1.5,f:"#3A4A5C",e:"none",ei:"#3A4A5C",penguin:1},
+  {n:"無尾熊",w:1.5,f:"#B9C2CC",e:"koala",ei:"#9AA5B1",nose:1}];
+function custSVG(i,mood){
+  const c=CUST[i], ink="#2B3440";
+  let ears="";
+  if(c.e==="cat") ears=`<path d="M22 34L28 8l18 18z" fill="${c.f}"/><path d="M78 34L72 8 54 26z" fill="${c.f}"/><path d="M27 26l3-11 8 8z" fill="${c.ei}"/><path d="M73 26l-3-11-8 8z" fill="${c.ei}"/>`;
+  if(c.e==="rabbit") ears=`<ellipse cx="36" cy="16" rx="8" ry="22" fill="${c.f}"/><ellipse cx="64" cy="16" rx="8" ry="22" fill="${c.f}"/><ellipse cx="36" cy="17" rx="4" ry="15" fill="${c.ei}"/><ellipse cx="64" cy="17" rx="4" ry="15" fill="${c.ei}"/>`;
+  if(c.e==="round") ears=`<circle cx="24" cy="26" r="12" fill="${c.f}"/><circle cx="76" cy="26" r="12" fill="${c.f}"/><circle cx="24" cy="26" r="6" fill="${c.ei}"/><circle cx="76" cy="26" r="6" fill="${c.ei}"/>`;
+  if(c.e==="floppy") ears=`<ellipse cx="18" cy="44" rx="10" ry="18" fill="${c.ei}" transform="rotate(18 18 44)"/><ellipse cx="82" cy="44" rx="10" ry="18" fill="${c.ei}" transform="rotate(-18 82 44)"/>`;
+  if(c.e==="small") ears=`<circle cx="26" cy="24" r="9" fill="${c.ei}"/><circle cx="74" cy="24" r="9" fill="${c.ei}"/>`;
+  if(c.e==="tuft") ears=`<path d="M46 14q4-10 8 0q4-8 6 2" stroke="${c.ei}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  if(c.e==="koala") ears=`<circle cx="18" cy="34" r="16" fill="${c.f}"/><circle cx="82" cy="34" r="16" fill="${c.f}"/><circle cx="18" cy="34" r="9" fill="#EEF1F4"/><circle cx="82" cy="34" r="9" fill="#EEF1F4"/>`;
+  let face=`<ellipse cx="50" cy="56" rx="38" ry="34" fill="${c.f}" stroke="rgba(0,0,0,.08)" stroke-width="2"/>`;
+  if(c.penguin) face+=`<ellipse cx="50" cy="62" rx="27" ry="24" fill="#FFFFFF"/>`;
+  if(c.muzzle) face+=`<ellipse cx="50" cy="70" rx="20" ry="14" fill="#FFF6EC"/>`;
+  if(c.panda) face+=`<ellipse cx="35" cy="54" rx="9" ry="11" fill="#2D2D33" transform="rotate(-20 35 54)"/><ellipse cx="65" cy="54" rx="9" ry="11" fill="#2D2D33" transform="rotate(20 65 54)"/>`;
+  const eyeCol = c.panda?"#FFFFFF":ink;
+  let eyes = mood==="happy"
+    ? `<path d="M31 56q5-6 10 0M59 56q5-6 10 0" stroke="${eyeCol}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+    : `<circle cx="36" cy="55" r="4" fill="${eyeCol}"/><circle cx="64" cy="55" r="4" fill="${eyeCol}"/>`;
+  let mouth = mood==="happy" ? `<path d="M43 68q7 8 14 0" stroke="${ink}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`
+    : mood==="hmm" ? `<path d="M44 70q3-3 6 0t6 0" stroke="${ink}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`
+    : `<path d="M45 67q5 4 10 0" stroke="${ink}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  if(c.beak) mouth=`<path d="M44 64l6 7 6-7z" fill="#F59B3B"/>`+(mood==="happy"?`<path d="M44 64l6 3 6-3" stroke="#C8701E" stroke-width="1.5" fill="none"/>`:"");
+  const nose = c.nose?`<ellipse cx="50" cy="63" rx="7" ry="9" fill="#4A4F57"/>`:(c.beak?"":`<ellipse cx="50" cy="63" rx="3.5" ry="2.5" fill="${ink}"/>`);
+  const cheeks = `<ellipse cx="27" cy="66" rx="6" ry="3.6" fill="#FF9FB4" opacity="${c.cheeks?0.9:0.55}"/><ellipse cx="73" cy="66" rx="6" ry="3.6" fill="#FF9FB4" opacity="${c.cheeks?0.9:0.55}"/>`;
+  const extra = mood==="hmm" ? `<text x="84" y="20" font-family="Fredoka,sans-serif" font-size="20" font-weight="700" fill="${ink}">?</text>`
+    : mood==="happy" ? `<path d="M86 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#F5B83D"/>` : "";
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${ears}${face}${eyes}${cheeks}${nose}${mouth}${extra}</svg>`;
+}
+function pickCustomer(){
+  const tot=CUST.reduce((a,c)=>a+c.w,0); let r=Math.random()*tot;
+  for(let i=0;i<CUST.length;i++){ r-=CUST[i].w; if(r<=0) return i; } return 0;
+}
+
+/* ===== seal ===== */
+const HATS={
+  chef:`<g><rect x="40" y="22" width="38" height="10" rx="3" fill="#FFFFFF" stroke="#C9D9E5" stroke-width="2"/><path d="M38 24c-8-2-10-14-1-17 3-8 14-9 18-3 5-6 16-5 18 2 9 1 9 15 1 18z" fill="#FFFFFF" stroke="#C9D9E5" stroke-width="2"/></g>`,
+  witch:`<g><path d="M44 30L66 0l4 6-6 2 8 22z" fill="#5B3A84" stroke="#3E2660" stroke-width="2" stroke-linejoin="round"/><rect x="47" y="23" width="25" height="5" rx="2" fill="#FF9F2E"/><ellipse cx="60" cy="31" rx="27" ry="5.5" fill="#4B2E6B" stroke="#3E2660" stroke-width="2"/></g>`,
+  santa:`<g><path d="M42 30Q48 4 72 8q10 3 10 12l-6 1q-2-6-6-6L76 30z" fill="#E5484D" stroke="#B9323A" stroke-width="2" stroke-linejoin="round"/><circle cx="81" cy="22" r="5.5" fill="#FFFFFF" stroke="#D9DEE5" stroke-width="1.5"/><rect x="39" y="26" width="40" height="8" rx="4" fill="#FFFFFF" stroke="#D9DEE5" stroke-width="1.5"/></g>`
+};
+const BANANA_SEAL=`<g transform="translate(-33 -54.7) scale(.132)" stroke-linecap="round" stroke-linejoin="round"><path d="M425 858C440 760 560 600 800 592C1010 588 1120 700 1138 818L1240 834C1258 840 1255 868 1235 872L1148 900C1165 960 1160 1020 1152 1066C1205 1050 1262 1033 1290 1050C1312 1062 1306 1100 1280 1108C1250 1116 1220 1112 1195 1110C1120 1160 1010 1192 870 1196C650 1200 460 1160 395 1080C360 1030 368 960 380 925L290 888C262 880 262 850 292 845Z" fill="#FFFFFF"/><path d="M425 852C440 760 560 600 800 592C1010 588 1120 700 1136 812" fill="none" stroke="#232323" stroke-width="22"/><path d="M1150 822C1185 828 1220 832 1240 834C1258 840 1255 868 1235 872C1200 882 1170 893 1148 899" fill="none" stroke="#232323" stroke-width="22"/><path d="M1153 924C1165 975 1161 1025 1151 1076" fill="none" stroke="#232323" stroke-width="22"/><path d="M1166 1066C1208 1052 1262 1033 1290 1050C1312 1062 1306 1100 1280 1108C1258 1114 1236 1102 1222 1092" fill="none" stroke="#232323" stroke-width="22"/><path d="M1196 1118C1120 1162 1010 1192 870 1196C650 1200 460 1160 395 1080C360 1030 366 965 380 936" fill="none" stroke="#232323" stroke-width="22"/><path d="M412 854C376 850 320 840 292 845C262 850 262 880 290 888C320 898 346 907 364 912" fill="none" stroke="#232323" stroke-width="22"/><circle cx="750" cy="707" r="12" fill="#232323"/><circle cx="832" cy="712" r="12" fill="#232323"/><ellipse cx="665" cy="765" rx="31" ry="16" transform="rotate(3 665 765)" fill="#232323"/><ellipse cx="918" cy="782" rx="30" ry="16" transform="rotate(8 918 782)" fill="#232323"/><path d="M764 778Q796 768 828 778L821 799Q796 808 771 799Z" fill="#232323" stroke="#232323" stroke-width="10"/><path d="M764 778Q796 768 828 778" fill="none" stroke="#232323" stroke-width="26"/><path d="M771 799Q796 808 821 799" fill="none" stroke="#232323" stroke-width="24"/><path d="M760 1035L790 1065M790 1035L760 1065" stroke="#232323" stroke-width="14"/><path d="M705 530C748 614 914 612 976 522C983 512 972 498 958 505C900 546 790 550 728 514C714 506 698 518 705 530Z" fill="#F7D33C" stroke="#232323" stroke-width="18"/><path d="M752 570C810 594 884 590 934 556" fill="none" stroke="#E7B521" stroke-width="12"/><path d="M964 512L990 486" fill="none" stroke="#232323" stroke-width="22"/><circle cx="707" cy="528" r="13" fill="#232323"/><path d="M770 545C800 556 840 558 870 552" fill="none" stroke="#FFF3B0" stroke-width="9" opacity=".9"/></g>`;
+const SKIN_PRICE=300;
+function sealSVG(size, hat, evil, skin){
+  if(hat===true) hat="chef";
+  const sk=skin||(typeof S!=="undefined"&&S&&S.skin)||"classic";
+  if(!evil && sk==="banana") return `<svg class="seal bob" style="width:${size}px;overflow:visible" viewBox="0 0 140 110" aria-hidden="true">${BANANA_SEAL}</svg>`;
+  if(evil) return `<svg class="seal bob" style="width:${size}px" viewBox="0 0 140 110" aria-hidden="true">
+  <ellipse cx="68" cy="66" rx="62" ry="44" fill="#9B6BD0" opacity=".16"/>
+  <path d="M47 33q-5-9 1-15q1 8 6 14z" fill="#8E5CC9" stroke="#6E3FA8" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M75 32q4-10 11-12q-3 7-4 14z" fill="#8E5CC9" stroke="#6E3FA8" stroke-width="1.5" stroke-linejoin="round"/>
+  <ellipse cx="70" cy="102" rx="44" ry="5" fill="var(--line)"/>
+  <path d="M106 75C113 69.5 120.5 64.5 126 66C131.5 67.5 131 74.5 126.5 77.8C129.5 80.2 129 85.2 125 86.7C120 88.6 113 87.2 106 85.2Z" fill="var(--seal)"/>
+  <ellipse cx="32" cy="91" rx="10" ry="6" transform="rotate(-28 32 91)" fill="var(--seal)"/>
+  <ellipse cx="92" cy="95" rx="10" ry="6" transform="rotate(22 92 95)" fill="var(--seal)"/>
+  <ellipse cx="66" cy="66" rx="52" ry="36" fill="var(--seal)"/>
+  <ellipse cx="60" cy="76" rx="34" ry="22" fill="var(--seal-belly)"/>
+  <path d="M38.5 50.5l9 3M79.5 50.5l-9 3" stroke="var(--seal-line)" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="44" cy="58" r="5" fill="#E0263F" stroke="#8E1424" stroke-width="1.2"/><circle cx="74" cy="58" r="5" fill="#E0263F" stroke="#8E1424" stroke-width="1.2"/>
+  <circle cx="45.8" cy="56.2" r="1.6" fill="#FFFFFF"/><circle cx="75.8" cy="56.2" r="1.6" fill="#FFFFFF"/>
+  <ellipse cx="36" cy="67" rx="6" ry="3.6" fill="var(--cheek)" opacity=".75"/><ellipse cx="82" cy="67" rx="6" ry="3.6" fill="var(--cheek)" opacity=".75"/>
+  <ellipse cx="59" cy="63" rx="3.4" ry="2.4" fill="var(--seal-line)"/>
+  <path d="M53 67q3 4 6 0q4 3 8-3" stroke="var(--seal-line)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M55 68.6l1.4 3.4 1.6-3z" fill="#FFFFFF" stroke="var(--seal-line)" stroke-width="1" stroke-linejoin="round"/>
+  <g stroke="var(--seal-line)" stroke-width="1.3" stroke-linecap="round" opacity=".55"><path d="M47 66l-12 1"/><path d="M47 69l-11 4"/><path d="M71 66l12 1"/><path d="M71 69l11 4"/></g>
+  <path d="M126 66.5l6.5-4-1 7z" fill="#8E5CC9" stroke="#6E3FA8" stroke-width="1.2" stroke-linejoin="round"/>
+  </svg>`;
+  return `<svg class="seal bob" style="width:${size}px" viewBox="0 0 140 110" aria-hidden="true">
+  <ellipse cx="70" cy="102" rx="44" ry="5" fill="var(--line)"/>
+  <path d="M106 75C113 69.5 120.5 64.5 126 66C131.5 67.5 131 74.5 126.5 77.8C129.5 80.2 129 85.2 125 86.7C120 88.6 113 87.2 106 85.2Z" fill="var(--seal)"/>
+  <ellipse cx="32" cy="91" rx="10" ry="6" transform="rotate(-28 32 91)" fill="var(--seal)"/>
+  <ellipse cx="92" cy="95" rx="10" ry="6" transform="rotate(22 92 95)" fill="var(--seal)"/>
+  <ellipse cx="66" cy="66" rx="52" ry="36" fill="var(--seal)"/>
+  <ellipse cx="60" cy="76" rx="34" ry="22" fill="var(--seal-belly)"/>
+  <g fill="var(--seal-line)" opacity=".55"><circle cx="49.5" cy="51" r="1.8"/><circle cx="68.5" cy="51" r="1.8"/></g>
+  <g class="eye-open"><ellipse cx="44" cy="58" rx="4.6" ry="3.9" fill="var(--seal-line)"/><ellipse cx="74" cy="58" rx="4.6" ry="3.9" fill="var(--seal-line)"/>
+    <ellipse cx="44" cy="56" rx="2.1" ry=".65" fill="#FFFFFF"/><ellipse cx="74" cy="56" rx="2.1" ry=".65" fill="#FFFFFF"/></g>
+  <g class="eye-happy" stroke="var(--seal-line)" stroke-width="3" fill="none" stroke-linecap="round"><path d="M39 59q5-6 10 0"/><path d="M69 59q5-6 10 0"/></g>
+  <g stroke="#F59AAE" stroke-width="1.6" stroke-linecap="round"><path d="M32 69.5l2.4-4.4M35.6 69.5l2.4-4.4M39.2 69.5l2.4-4.4"/><path d="M77.6 69.5l2.4-4.4M81.2 69.5l2.4-4.4M84.8 69.5l2.4-4.4"/></g>
+  <path d="M59 66.2c-2.6-1.8-4.2-3.2-4.2-4.7 0-1.2 1-2 2-2 .9 0 1.7.5 2.2 1.3.5-.8 1.3-1.3 2.2-1.3 1 0 2 .8 2 2 0 1.5-1.6 2.9-4.2 4.7z" fill="var(--seal-line)" transform="translate(59 63.4) scale(.72) translate(-59 -63.4)"/>
+  <path d="M57.2 66.4q1.8 4.6 3.6 0z" fill="#F58FA2"/>
+  <path d="M54.8 65.4q2.1 2.8 4.2 0q2.1 2.8 4.2 0" fill="none" stroke="var(--seal-line)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  ${hat&&HATS[hat]?HATS[hat]:""}
+  </svg>`;
+}
+/* ===== seasons & mood ===== */
+const CNY={2027:"2027-02-06",2028:"2028-01-26",2029:"2029-02-13"};
+function season(){
+  const d=new Date(), m=d.getMonth()+1, day=d.getDate();
+  if((m===10&&day>=15)||(m===11&&day<=2)) return "halloween";
+  if(m===12) return "christmas";
+  const c=CNY[d.getFullYear()];
+  if(c){ const diff=(d-new Date(c+"T00:00:00"))/86400000; if(diff>=-10&&diff<=15) return "cny"; }
+  return "";
+}
+function hat(){ return S.grand?"chef":({halloween:"witch",christmas:"santa"}[season()]||""); }
+const SEASON_ITEMS={
+  pumpkin:`<svg viewBox="0 0 28 36"><path d="M14 0v8" stroke="var(--muted)" stroke-width="1.5"/><rect x="12.5" y="7" width="3" height="5" rx="1.5" fill="#5D8A3A"/><ellipse cx="14" cy="23" rx="12.5" ry="10.5" fill="#F58A1F"/><path d="M9 14q-3 9 0 18M19 14q3 9 0 18" stroke="#D96F0E" stroke-width="1.4" fill="none"/><path d="M7.5 20l3-3 3 3zM14.5 20l3-3 3 3z" fill="#FFE07A"/><path d="M8 26l2 2 2-2 2 2 2-2 2 2 2-2q-6 5-12 0z" fill="#FFE07A"/></svg>`,
+  bat:`<svg viewBox="0 0 28 36"><path d="M14 0v12" stroke="var(--muted)" stroke-width="1.5"/><path d="M14 14q3 0 4 3 3-3 8-2-3 2-3 6-3-2-5 1-1-3-4-3-3 0-4 3-2-3-5-1 0-4-3-6 5-1 8 2 1-3 4-3z" fill="#4A3B5C"/><circle cx="12.5" cy="18" r="1" fill="#FFFFFF"/><circle cx="15.5" cy="18" r="1" fill="#FFFFFF"/></svg>`,
+  candy:`<svg viewBox="0 0 28 36"><path d="M14 0v10" stroke="var(--muted)" stroke-width="1.5"/><path d="M5 17l-4-4v10zM23 17l4-4v10z" fill="#FFB7C8"/><circle cx="14" cy="18" r="8" fill="#FF7F9B"/><path d="M9 13l10 10M7 18l7 7M14 11l7 7" stroke="#FFFFFF" stroke-width="2"/></svg>`,
+  bulbR:`<svg viewBox="0 0 28 36"><path d="M14 0v8" stroke="var(--muted)" stroke-width="1.5"/><rect x="11" y="7" width="6" height="5" rx="1.5" fill="#8A97A6"/><ellipse cx="14" cy="21" rx="6.5" ry="9" fill="#F0506A"/><ellipse cx="12" cy="18" rx="2" ry="3" fill="#FFFFFF" opacity=".55"/></svg>`,
+  bulbG:`<svg viewBox="0 0 28 36"><path d="M14 0v8" stroke="var(--muted)" stroke-width="1.5"/><rect x="11" y="7" width="6" height="5" rx="1.5" fill="#8A97A6"/><ellipse cx="14" cy="21" rx="6.5" ry="9" fill="#4CBF7A"/><ellipse cx="12" cy="18" rx="2" ry="3" fill="#FFFFFF" opacity=".55"/></svg>`,
+  bulbY:`<svg viewBox="0 0 28 36"><path d="M14 0v8" stroke="var(--muted)" stroke-width="1.5"/><rect x="11" y="7" width="6" height="5" rx="1.5" fill="#8A97A6"/><ellipse cx="14" cy="21" rx="6.5" ry="9" fill="#F7C94B"/><ellipse cx="12" cy="18" rx="2" ry="3" fill="#FFFFFF" opacity=".55"/></svg>`,
+  bulbB:`<svg viewBox="0 0 28 36"><path d="M14 0v8" stroke="var(--muted)" stroke-width="1.5"/><rect x="11" y="7" width="6" height="5" rx="1.5" fill="#8A97A6"/><ellipse cx="14" cy="21" rx="6.5" ry="9" fill="#5B9BE8"/><ellipse cx="12" cy="18" rx="2" ry="3" fill="#FFFFFF" opacity=".55"/></svg>`,
+  tree:`<svg viewBox="0 0 28 36"><path d="M14 2l8 10h-4l7 9h-5l6 8H2l6-8H3l7-9H6z" fill="#3E9E5F"/><rect x="12" y="29" width="4" height="6" fill="#9A6A40"/><circle cx="11" cy="15" r="1.6" fill="#F0506A"/><circle cx="17" cy="21" r="1.6" fill="#F7C94B"/><circle cx="10" cy="25" r="1.6" fill="#5B9BE8"/><path d="M14 0l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="#F7C94B"/></svg>`,
+  lantern:`<svg viewBox="0 0 28 36"><path d="M14 0v7" stroke="var(--muted)" stroke-width="1.5"/><rect x="9" y="6" width="10" height="3" rx="1" fill="#E8B53A"/><ellipse cx="14" cy="18" rx="10" ry="9" fill="#E53935"/><path d="M14 9v18M8 11q-3 7 0 14M20 11q3 7 0 14" stroke="#B71C1C" stroke-width="1" fill="none"/><rect x="9" y="26" width="10" height="3" rx="1" fill="#E8B53A"/><path d="M12 29v6M14 29v7M16 29v6" stroke="#E8B53A" stroke-width="1.2"/></svg>`,
+  fu:`<svg viewBox="0 0 28 36"><path d="M14 0v5" stroke="var(--muted)" stroke-width="1.5"/><rect x="5" y="9" width="18" height="18" transform="rotate(45 14 18)" fill="#E53935"/><text x="14" y="23" text-anchor="middle" font-size="13" fill="#F7D36B" font-family="Huninn,PingFang TC,sans-serif">福</text></svg>`
+};
+const SEASON_SETS={
+  halloween:["pumpkin","bat","candy","pumpkin","bat","candy","pumpkin"],
+  christmas:["bulbR","bulbG","bulbY","tree","bulbB","bulbR","bulbG"],
+  cny:["lantern","fu","lantern","fu","lantern"]
+};
+function renderSeason(){
+  const set=SEASON_SETS[season()]||[];
+  const h=set.map(k=>SEASON_ITEMS[k]).join("");
+  for(const id of ["seasonHome","seasonGame"]){ const el=$(id); if(el) el.innerHTML=h; }
+}
+const PURIFY_N=10, GRACE=3, QUIZ_EVERY=5, QUIZ_END=10, QUIZ_COIN=2;
+function wipeShop(){ S.coins=0; S.owned={crust:0,stove:0,stick:0,decor:0}; S.equip={crust:0,stove:0,stick:0}; S.grand=false; S.skin="classic"; S.skins={banana:false}; S.wiped=true; }
+function checkEvil(){
+  const t=today();
+  if(S.lastActive==null||S.lastActive<0){ S.lastActive=t; S.rulesV=2; save(); return; }
+  if(S.rulesV!==2){ S.rulesV=2; if(S.lastActive<t-1) S.lastActive=t-1; save(); }
+  if(!S.evil && t-S.lastActive>=2){ S.evil=true; S.purify=0; S.evilDay=S.lastActive+2; S.wiped=false; save(); }
+  if(S.evil && !PREVIEW && !S.wiped && S.evilDay!=null && t>=S.evilDay+GRACE){ wipeShop(); save(); }
+  document.body.classList.toggle("evil",!!S.evil);
+}
+function sealMood(el, mood){
+  const s = el.querySelector(".seal"); if(!s) return;
+  s.classList.toggle("happy", mood==="happy");
+  s.classList.remove("hop","tilt","bob"); void s.getBoundingClientRect();
+  if(mood==="happy") s.classList.add("hop"); else if(mood==="think") s.classList.add("tilt");
+  setTimeout(()=>{ s.classList.remove("hop","tilt"); s.classList.add("bob"); }, 650);
+}
+
+/* ===== time & state ===== */
+function today(){ const d=new Date(); return Math.floor((d.getTime()-d.getTimezoneOffset()*60000)/86400000); }
+function blank(){ return {v:2, s:{}, newPerDay:20, dir:"en", day:-1, newDone:0, streak:0, lastDay:-1, updatedAt:0,
+  coins:0, owned:{crust:0,stove:0,stick:0,decor:0}, equip:{crust:0,stove:0,stick:0}, grand:false, skin:"classic", skins:{banana:false}, seen:[], sound:true, bonusDay:-1, lastActive:-1, evil:false, purify:0, evilDay:null, wiped:false, rulesV:2}; }
+function normalize(o){
+  const b=blank(), r=Object.assign(b, o||{});
+  r.owned=Object.assign(blank().owned, (o&&o.owned)||{});
+  r.equip=Object.assign(blank().equip, (o&&o.equip)||{});
+  r.skins=Object.assign({banana:false}, (o&&o.skins)||{});
+  if(r.skin!=="banana"||!r.skins.banana) r.skin="classic";
+  if(!Array.isArray(r.seen)) r.seen=[];
+  if(r.lastActive==null||r.lastActive<0) r.lastActive=(o&&o.lastDay>=0)?o.lastDay:-1;
+  return r;
+}
+let S = blank();
+try{ const raw=localStorage.getItem(LS_KEY); if(raw) S=normalize(JSON.parse(raw)); }catch(e){}
+let PREVIEW=false, REAL=null;
+try{ PREVIEW = location.hash==="#evilpreview"; }catch(e){}
+function enterPreview(){ REAL={evil:!!S.evil,purify:S.purify||0,evilDay:S.evilDay??null,wiped:!!S.wiped}; S.evil=true; S.purify=0; S.evilDay=today(); S.wiped=false; }
+if(PREVIEW) enterPreview();
+function persisted(){ const o=JSON.parse(JSON.stringify(S)); if(PREVIEW&&REAL){ o.evil=REAL.evil; o.purify=REAL.purify; o.evilDay=REAL.evilDay; o.wiped=REAL.wiped; } return o; }
+
+let docRef=null, saving=false, saveAgain=false, saveTimer=null, busy=false;
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(persisted())); }catch(e){} }
+function save(){ S.updatedAt=Date.now(); saveLocal(); if(!docRef) return; clearTimeout(saveTimer); saveTimer=setTimeout(pushRemote,1200); }
+async function pushRemote(){
+  if(!docRef) return;
+  if(saving){ saveAgain=true; return; }
+  saving=true;
+  try{ await docRef.set(persisted()); setSync(true); }
+  catch(e){ if(e&&(e.code==="invalid_argument"||e.code==="revoked"||e.code==="not_granted")){ docRef=null; setSync(false); } }
+  saving=false; if(saveAgain){ saveAgain=false; pushRemote(); }
+}
+async function pullRemote(){
+  if(!docRef) return;
+  try{
+    const snap=await docRef.get();
+    if(snap.exists){
+      const r=snap.data();
+      if((r.updatedAt||0)>(S.updatedAt||0)){ S=normalize(JSON.parse(JSON.stringify(r))); if(PREVIEW) enterPreview(); saveLocal(); if(!busy) renderHome(); }
+      else if((S.updatedAt||0)>(r.updatedAt||0)) pushRemote();
+    } else if(S.updatedAt) pushRemote();
+    setSync(true);
+  }catch(e){}
+}
+function setSync(on){
+  const el=$("sync"); el.classList.toggle("on",on);
+  el.querySelector("span").textContent = on ? "已同步到雲端" : "只存在這台裝置";
+}
+(async()=>{
+  try{
+    if(!window.claude||!window.claude.use) return;
+    const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!d||!u) return;
+    const id=await u.id(); if(!id) return;
+    docRef=d.doc("data/users/"+id+"/progress");
+    await pullRemote();
+  }catch(e){}
+})();
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&!busy) pullRemote(); });
+
+/* ===== sound ===== */
+let actx=null;
+function tone(freqs,dur=.12,type="sine",gap=.07,vol=.12){
+  if(!S.sound) return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==="suspended") actx.resume();
+    freqs.forEach((f,i)=>{ const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime+i*gap;
+      o.type=type; o.frequency.value=f; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.01); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+dur+.02); });
+  }catch(e){}
+}
+const sfx={ pop:()=>tone([520+Math.random()*120],.09,"triangle"), back:()=>tone([330],.08,"triangle"),
+  ok:()=>tone([660,880,1175],.16,"sine",.08), bad:()=>tone([220,180],.14,"square",.09,.05), coin:()=>tone([1320,1760],.1,"triangle",.06,.08),
+  buy:()=>tone([523,659,784,1046],.18,"sine",.08) };
+
+/* ===== helpers ===== */
+const $=id=>document.getElementById(id);
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function parseSenses(def){
+  const re=/\(((?:n|v|vt|vi|adj|adv|ad|a|prep|conj|pron|num|interj|int)(?:[、,]\s?(?:n|v|vt|vi|adj|adv|a|prep|conj|pron|num|interj))*|片)\)/g;
+  const out=[]; let last=0,m;
+  while((m=re.exec(def))){ const t=def.slice(last,m.index).replace(/^[、\s]+/,"").trim(); const p=m[1]==="片"?"片語":m[1].replace(/\s/g,"");
+    if(t) out.push({t,p}); else if(out.length) out[out.length-1].p+="、"+p; last=re.lastIndex; }
+  const rest=def.slice(last).trim(); if(rest) out.push({t:rest,p:""});
+  return out;
+}
+function sensesHTML(def){ return `<div class="senses">${parseSenses(def).map(s=>`<div class="sense">${s.p?`<span class="pos">${esc(s.p)}</span>`:""}<span>${esc(s.t)}</span></div>`).join("")}</div>`; }
+const canSpeak="speechSynthesis" in window;
+const SPK=`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path d="M11.5 5.5a3.5 3.5 0 010 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+function speakBtn(){ return canSpeak?`<button class="speak" data-speak>${SPK}聽發音</button>`:""; }
+function speak(w){ if(!canSpeak) return; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(w); u.lang="en-US"; u.rate=.85; speechSynthesis.speak(u);}catch(e){} }
+function show(v){ for(const id of ["v-home","v-game","v-study","v-done","v-shop","v-list"]) $(id).hidden=id!==v; window.scrollTo(0,0); }
+function setCoins(){ for(const id of ["coinHome","coinGame","coinShop"]) $(id).querySelector("b").textContent=S.coins; }
+function addCoins(n, id){
+  S.coins+=n; setCoins(); if(n<=0) return;
+  const el=$(id||"coinGame"); const f=document.createElement("span"); f.className="float"; f.textContent="+"+n; el.appendChild(f); setTimeout(()=>f.remove(),1300);
+  sfx.coin();
+}
+function toast(t){ const d=document.createElement("div"); d.className="toast"; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),1800); }
+
+/* ===== scheduling ===== */
+function rollDay(){ const t=today(); if(S.day!==t){ S.day=t; S.newDone=0; } }
+function stats(){ let known=0,learning=0; for(const k in S.s){ if(S.s[k].b>=KNOWN_BOX) known++; else learning++; } return {known,learning,fresh:N-known-learning}; }
+function dueList(){ const t=today(),o=[]; for(const k in S.s) if(S.s[k].d<=t) o.push(+k); o.sort((a,b)=>S.s[a].d-S.s[b].d||a-b); return o; }
+const ORDER=(()=>{ let a=20261021; const r=()=>{ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; };
+  const o=[...Array(N).keys()]; for(let i=N-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [o[i],o[j]]=[o[j],o[i]]; } return o; })();
+function newList(lim){ const o=[]; for(let k=0;k<N&&o.length<lim;k++){ const i=ORDER[k]; if(!S.s[i]) o.push(i); } return o; }
+function buildQueue(){
+  rollDay();
+  const due=dueList(), fresh=newList(Math.max(0,S.newPerDay-S.newDone)), q=[]; let i=0,j=0;
+  while(i<due.length||j<fresh.length){ for(let k=0;k<2&&i<due.length;k++) q.push({w:due[i++],isNew:false,miss:false}); if(j<fresh.length) q.push({w:fresh[j++],isNew:true,miss:false}); }
+  return q;
+}
+function grade(q, good){
+  const t=today(), cur=S.s[q.w];
+  if(good){
+    if(q.miss) S.s[q.w]={b:1,d:t+1};
+    else{ const b=Math.min((cur?cur.b:0)+1,INTERVAL.length-1); S.s[q.w]={b,d:t+INTERVAL[b]}; }
+  }else S.s[q.w]={b:1,d:t};
+}
+
+/* ===== home ===== */
+const GREETS=["嗨！今天也一起做可麗餅吧","客人在排隊了，快來幫忙","每天一點點，會考見！","拼錯也沒關係，客人會再來"];
+function renderHome(){
+  rollDay(); checkEvil(); renderSeason();
+  $("sealHome").innerHTML=sealSVG(118,hat(),S.evil);
+  const due=dueList().length, fresh=newList(Math.max(0,S.newPerDay-S.newDone)).length;
+  $("cDue").textContent=due; $("cNew").textContent=fresh;
+  const st=stats(), pct=n=>(n/N*100).toFixed(2)+"%";
+  $("bar").innerHTML=`<span style="width:${pct(st.known)};background:var(--good)"></span><span style="width:${pct(st.learning)};background:var(--accent)"></span>`;
+  $("legend").innerHTML=`<span><i style="background:var(--good)"></i>已熟記 <b>${st.known}</b></span><span><i style="background:var(--accent)"></i>學習中 <b>${st.learning}</b></span><span><i style="background:var(--line)"></i>還沒學 <b>${st.fresh}</b></span>`;
+  const t=today(), live=S.lastDay===t||S.lastDay===t-1;
+  $("streak").textContent=live&&S.streak>0?`連續 ${S.streak} 天`:"";
+  const total=due+fresh;
+  const left=newList(5).length;
+  $("startGame").disabled=total===0&&left===0; $("startCards").disabled=total===0;
+  $("startGame").textContent=total===0?(left?`加班再做 ${left} 個`:"單字都學完了"):`做可麗餅（${total} 個）`;
+  $("greet").innerHTML=total===0?"今天的客人都招待完了！<b>明天見</b>":GREETS[t%GREETS.length];
+  $("bonusNote").textContent = total===0 ? "今天的份量完成了！想多練可以加班，加班的金幣減半。" : S.bonusDay===t ? "今天的完成獎勵已經拿到了" : `做完今天的份量，額外送 ${ECON.dailyBonus} 金幣`;
+  const away=t-S.lastActive;
+  if(S.evil){
+    const daysLeft=(S.evilDay!=null)?S.evilDay+GRACE-t:GRACE;
+    $("greet").innerHTML = S.wiped
+      ? `哼，太久沒淨化，金幣和店裡的東西都被我<b>搞壞</b>了！<br>做 ${PURIFY_N} 個可麗餅才能讓我變回來（${S.purify||0}/${PURIFY_N}）`
+      : `哼，妳沒來做可麗餅……我已經<b>黑化</b>了！<br>做 ${PURIFY_N} 個可麗餅才能讓我變回來（${S.purify||0}/${PURIFY_N}）<br><b>${daysLeft<=1?"今天":`${daysLeft} 天內`}</b>沒淨化的話，金幣和店裡的東西都會不見！`;
+    if(!$("startGame").disabled) $("startGame").textContent = total===0?`淨化海豹（加班 ${left} 個）`:`淨化海豹（${total} 個）`;
+  } else if(away>=1 && total>0){
+    $("greet").innerHTML="今天還沒做可麗餅喔，<b>不做的話明天我就會黑化！</b>";
+  }
+  for(const b of $("segNew").children) b.setAttribute("aria-pressed",String(+b.dataset.v===S.newPerDay));
+  for(const b of $("segDir").children) b.setAttribute("aria-pressed",String(b.dataset.v===S.dir));
+  for(const b of $("segSound").children) b.setAttribute("aria-pressed",String((b.dataset.v==="1")===!!S.sound));
+  setCoins();
+}
+$("segNew").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return; S.newPerDay=+b.dataset.v; save(); renderHome();});
+$("segDir").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return; S.dir=b.dataset.v; save(); renderHome();});
+$("segSound").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return; S.sound=b.dataset.v==="1"; save(); renderHome(); sfx.pop();});
+$("sealHome").addEventListener("click",()=>sealMood($("sealHome"),"happy"));
+/* ===== backup code ===== */
+function b64(bytes){ let s=""; for(let i=0;i<bytes.length;i+=8192) s+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192)); return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+function unb64(str){ str=str.replace(/-/g,"+").replace(/_/g,"/"); while(str.length%4) str+="="; const bin=atob(str), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+async function pipe(bytes,stream){ const s=new Blob([bytes]).stream().pipeThrough(stream); return new Uint8Array(await new Response(s).arrayBuffer()); }
+async function makeBackup(){
+  const o=persisted(); o.s=Object.entries(o.s||{}).map(([k,v])=>[+k,v.b,v.d]);
+  const raw=new TextEncoder().encode(JSON.stringify(o));
+  if(typeof CompressionStream!=="undefined"){ try{ return "SEAL1z."+b64(await pipe(raw,new CompressionStream("deflate-raw"))); }catch(e){} }
+  return "SEAL1."+b64(raw);
+}
+async function readBackup(code){
+  code=(code||"").trim().replace(/\s+/g,"");
+  const m=code.match(/^SEAL1(z?)\.([A-Za-z0-9_-]+)$/); if(!m) throw new Error("format");
+  let bytes=unb64(m[2]);
+  if(m[1]){ if(typeof DecompressionStream==="undefined") throw new Error("old"); bytes=await pipe(bytes,new DecompressionStream("deflate-raw")); }
+  const o=JSON.parse(new TextDecoder().decode(bytes));
+  const s={}; (o.s||[]).forEach(a=>{ if(Array.isArray(a)&&a.length===3) s[a[0]]={b:a[1],d:a[2]}; }); o.s=s;
+  return normalize(o);
+}
+function showBkLast(){ try{ const t=localStorage.getItem("seal-backup-at"); $("bkLast").textContent=t?`上次複製備份碼：${t}`:"還沒有複製過備份碼"; }catch(e){ $("bkLast").textContent=""; } }
+async function copyBackup(btn){
+  const code=await makeBackup();
+  let ok=false;
+  try{ await navigator.clipboard.writeText(code); ok=true; }catch(e){}
+  if(!ok){ show("v-home"); $("bkBox").hidden=false; $("bkText").value=code; $("bkText").focus(); $("bkText").select(); $("bkMsg").textContent="沒辦法自動複製，請長按上面的文字全選後複製。"; $("bkRestore").hidden=true; $("backupPanel").scrollIntoView({block:"center"}); return; }
+  try{ const d=new Date(); localStorage.setItem("seal-backup-at",`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`); }catch(e){}
+  showBkLast(); toast("已複製，貼到備忘錄存起來吧");
+}
+$("bkCopy").addEventListener("click",()=>copyBackup());
+$("bkDone").addEventListener("click",()=>copyBackup());
+$("bkOpen").addEventListener("click",()=>{ $("bkBox").hidden=false; $("bkRestore").hidden=false; $("bkText").value=""; $("bkMsg").textContent="貼上之前複製的備份碼，還原後會取代現在這支手機上的進度。"; $("bkText").focus(); });
+$("bkClose").addEventListener("click",()=>{ $("bkBox").hidden=true; });
+$("bkRestore").addEventListener("click",async()=>{
+  try{
+    const o=await readBackup($("bkText").value);
+    const learned=Object.keys(o.s).length;
+    S=o; S.updatedAt=Date.now(); saveLocal(); if(docRef) pushRemote();
+    $("bkBox").hidden=true; renderHome(); toast(`還原完成！學過 ${learned} 個字、${S.coins} 金幣`);
+  }catch(e){
+    $("bkMsg").textContent = e&&e.message==="old" ? "這個瀏覽器版本太舊，沒辦法讀這組備份碼。" : "這組備份碼讀不出來，請確認有完整複製，從 SEAL1 開頭到最後一個字。";
+  }
+});
+showBkLast();
+try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
+
+/* ===== looks ===== */
+function fillOf(item, grad){
+  if(item.a!=="rainbow") return item.a;
+  return grad||"conic-gradient(from 0deg,#F7B0C1,#FBD38A,#C9E6A0,#A9D6F2,#CDB8F0,#F7B0C1)";
+}
+function applyLooks(){
+  const cr=CRUST[S.equip.crust], sv=STOVE[S.equip.stove];
+  const crepe=$("crepe");
+  crepe.style.background = cr.a==="rainbow"
+    ? "radial-gradient(circle,#FFF4E3 0 30%,transparent 31%),conic-gradient(from 0deg,#F9C6D2,#FBE0A8,#D7EDB4,#BFE0F5,#DACBF3,#F9C6D2)"
+    : `radial-gradient(circle at 50% 50%, ${cr.a} 0 58%, color-mix(in srgb, ${cr.a} 70%, ${cr.b}) 59% 80%, ${cr.b} 100%)`;
+  crepe.style.boxShadow = `inset 0 0 0 4px ${cr.b}55`;
+  $("stove").style.background = sv.stars ? `radial-gradient(circle at 20% 30%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 80% 20%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 70% 85%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 12% 80%,#fff 0 1px,transparent 1.5px),${sv.a}` : sv.a;
+  $("stove").style.boxShadow = `0 6px 0 ${sv.b}`;
+  $("plate").style.background = `radial-gradient(circle, color-mix(in srgb,${sv.b} 70%,#000) 0 70%, ${sv.b} 71%)`;
+  document.body.classList.toggle("evil",!!S.evil);
+  if(S.evil){
+    crepe.style.background="radial-gradient(circle at 40% 40%,#4A4252 0 20%,#2E2833 50%,#1B171F 100%)";
+    crepe.style.boxShadow="inset 0 0 0 4px #00000055, inset 0 0 22px #7B4BB066";
+    $("stove").style.background="#2A2430"; $("stove").style.boxShadow="0 6px 0 #120F16";
+    $("plate").style.background="radial-gradient(circle,#15121A 0 70%,#0C0A0F 71%)";
+  }
+  DONE_BG=crepe.style.background; DONE_SH=crepe.style.boxShadow;
+  crepe.style.background="transparent"; crepe.style.boxShadow="none";
+  renderBatter();
+  renderSeason();
+  const st=STICK[S.equip.stick];
+  const col = st.a==="rainbow" ? "url(#rbw)" : st.a;
+  $("stick").innerHTML = `<defs><linearGradient id="rbw"><stop offset="0" stop-color="#F7B0C1"/><stop offset=".33" stop-color="#FBD38A"/><stop offset=".66" stop-color="#A9D6F2"/><stop offset="1" stop-color="#CDB8F0"/></linearGradient></defs>
+    <rect x="0" y="5" width="200" height="6" rx="3" fill="${col}"/><rect x="96" y="0" width="8" height="16" rx="3" fill="${col}"/>${st.star?`<path d="M100 -2l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z" fill="#fff"/>`:""}`;
+  $("chef").innerHTML = sealSVG(78,hat(),S.evil);
+  renderDecor();
+}
+function renderDecor(){
+  const lv=S.owned.decor; let h="";
+  if(lv>=1) h+=`<svg width="100%" height="26" viewBox="0 0 100 26" preserveAspectRatio="none" style="position:absolute;top:0;left:0">${Array.from({length:10},(_,i)=>`<path d="M${i*10} 0h10v18q-5 8-10 0z" fill="${i%2?'#FFFFFF':'#FF9EB5'}"/>`).join("")}</svg>`;
+  if(lv>=2) h+=`<svg style="position:absolute;right:10px;bottom:14px;width:30px" viewBox="0 0 30 40"><path d="M15 22c-8-4-12-12-6-16 2 6 5 9 6 16zM15 22c8-4 12-12 6-16-2 6-5 9-6 16zM15 22c0-8 0-14 0-20" fill="#7FCB8C" stroke="#5FAE6E" stroke-width="1.5"/><path d="M6 24h18l-3 15H9z" fill="#E8A67C"/></svg>`;
+  if(lv>=3) h+=`<svg width="100%" height="40" viewBox="0 0 100 40" preserveAspectRatio="none" style="position:absolute;top:${lv>=1?18:4}px;left:0"><path d="M0 4Q50 22 100 4" stroke="#8A9AA8" stroke-width=".6" fill="none"/>${Array.from({length:9},(_,i)=>{const x=6+i*11,y=4+18*(1-Math.pow((x-50)/50,2))*0.9;return `<circle cx="${x}" cy="${y+2}" r="2.2" fill="${['#FFD66B','#FF9EB5','#9ADCCB'][i%3]}"/>`}).join("")}</svg>`;
+  if(lv>=4) h+=`<div style="position:absolute;left:12px;top:${lv>=1?30:10}px;width:46px;height:56px;background:#FFFFFF;border-radius:6px;box-shadow:0 2px 0 rgba(0,0,0,.08);transform:rotate(-6deg);display:grid;place-items:center;font-family:var(--f-word);font-weight:700;font-size:13px;color:#FF7F9B;line-height:1.1;text-align:center">ABC<br><span style="color:#4CBF9A">xyz</span></div>`;
+  if(lv>=5) h+=`<div style="position:absolute;right:14px;top:${lv>=1?30:10}px;width:60px;height:46px;border-radius:10px;background:linear-gradient(#BFE0F5,#E9F4FB);border:4px solid #FFFFFF;box-shadow:0 2px 0 rgba(0,0,0,.08);overflow:hidden"><div style="position:absolute;inset:auto 0 0 0;height:12px;background:#fff;border-radius:50% 50% 0 0"></div></div>`;
+  if(lv>=6) h+=`<div style="position:absolute;left:50%;top:${lv>=1?28:8}px;transform:translateX(-50%);font-family:var(--f-word);font-weight:700;font-size:15px;color:#FF7F9B;text-shadow:0 0 6px #FF9EB5,0 0 12px #FFC2D0;letter-spacing:.06em;white-space:nowrap">SEAL CRÊPES</div>`;
+  if(S.grand) h+=`<div style="position:absolute;left:50%;top:${lv>=6?48:(lv>=1?28:8)}px;transform:translateX(-50%);background:#FFFFFF;border:2px solid #F5B83D;border-radius:999px;padding:2px 10px;font-size:12px;color:#7A5200;white-space:nowrap">海豹主廚的招牌店</div>`;
+  $("decor").innerHTML=h;
+}
+
+/* ===== crêpe game ===== */
+const TS='<svg class="tsvg" viewBox="0 0 60 60" aria-hidden="true">', LT='0 1px 2px rgba(0,0,0,.45)', DK='0 0 3px rgba(255,255,255,.9),0 0 1px #fff';
+const TOPPINGS=[
+  {n:"草莓",fg:"#fff",sh:LT,ty:4,svg:TS+'<path d="M30 56C13 45 6 33 9 22c2-8 11-11 21-7 10-4 19-1 21 7 3 11-4 23-21 34z" fill="#F0506A"/><g fill="#FFE3A3"><ellipse cx="18" cy="26" rx="1.4" ry="2"/><ellipse cx="42" cy="26" rx="1.4" ry="2"/><ellipse cx="16" cy="36" rx="1.4" ry="2"/><ellipse cx="44" cy="36" rx="1.4" ry="2"/><ellipse cx="30" cy="48" rx="1.4" ry="2"/><ellipse cx="22" cy="45" rx="1.4" ry="2"/><ellipse cx="38" cy="45" rx="1.4" ry="2"/></g><path d="M16 14q7 1 10-6 2 6 4 6 2 0 4-6 3 7 10 6-4 6-14 6t-14-6z" fill="#5DBB63"/></svg>'},
+  {n:"橘子",fg:"#5A3300",sh:DK,ty:3,svg:TS+'<path d="M5 36C7 17 19 7 30 7s23 10 25 29c-7 8-16 11-25 11S12 44 5 36z" fill="#FF9F2E"/><path d="M9 35C12 20 21 12 30 12s18 8 21 23c-6 6-13 8-21 8S15 41 9 35z" fill="#FFC165"/><g stroke="#FFE2AE" stroke-width="1.6" stroke-linecap="round"><path d="M30 15v8"/><path d="M19 20l4 6"/><path d="M41 20l-4 6"/></g></svg>'},
+  {n:"藍莓",fg:"#fff",sh:LT,ty:2,svg:TS+'<circle cx="30" cy="32" r="24" fill="#4E66C8"/><circle cx="22" cy="24" r="6" fill="#7D93E6" opacity=".6"/><path d="M30 6l3 5 5-2-1 5 5 2-5 2 1 5-5-2-3 5-3-5-5 2 1-5-5-2 5-2-1-5 5 2z" fill="#2F418F" transform="translate(0 -1) scale(1 .7)"/></svg>'},
+  {n:"奇異果",fg:"#24410E",sh:DK,ty:0,svg:TS+'<circle cx="30" cy="30" r="26" fill="#7FAE3E"/><circle cx="30" cy="30" r="22" fill="#B9E06E"/><circle cx="30" cy="30" r="7" fill="#F2F6D2"/><g fill="#2E2A23">'+Array.from({length:12},(_,i)=>{const a=i/12*Math.PI*2;return `<ellipse cx="${(30+Math.cos(a)*11).toFixed(1)}" cy="${(30+Math.sin(a)*11).toFixed(1)}" rx="1" ry="1.8" transform="rotate(${(i*30+90)} ${(30+Math.cos(a)*11).toFixed(1)} ${(30+Math.sin(a)*11).toFixed(1)})"/>`}).join("")+'</g></svg>'},
+  {n:"香蕉",fg:"#7A5200",sh:DK,ty:0,svg:TS+'<ellipse cx="30" cy="30" rx="26" ry="23" fill="#FFF0B0" stroke="#EFCB5C" stroke-width="3"/><g fill="#D9B562"><circle cx="30" cy="24" r="1.4"/><circle cx="25" cy="34" r="1.4"/><circle cx="35" cy="34" r="1.4"/></g></svg>'},
+  {n:"巧克力",fg:"#fff",sh:LT,ty:0,svg:TS+'<rect x="7" y="7" width="46" height="46" rx="7" fill="#6E412A" transform="rotate(8 30 30)"/><g stroke="#4F2D1C" stroke-width="2.2" transform="rotate(8 30 30)"><path d="M22.3 9v42M37.6 9v42M9 22.3h42M9 37.6h42"/></g></svg>'},
+  {n:"鮮奶油",fg:"#8A6A4A",sh:DK,ty:5,svg:TS+'<path d="M8 50c-6-9 1-17 9-15-2-11 8-19 17-14 4-9 18-9 19 3 8 3 7 18-1 26z" fill="#FFFFFF" stroke="#E2D6C6" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 40q8-6 18-1" stroke="#EDE3D6" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'},
+  {n:"櫻桃",fg:"#fff",sh:LT,ty:7,svg:TS+'<path d="M30 20q2-12 14-16" stroke="#5D8A3A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M42 5q8 1 10 8-8 1-10-8z" fill="#6CBF5A"/><circle cx="30" cy="38" r="20" fill="#D7263D"/><circle cx="23" cy="31" r="5" fill="#F06476" opacity=".7"/></svg>'},
+  {n:"芒果",fg:"#5A3300",sh:DK,ty:4,svg:TS+'<path d="M10 20l10-10h30v30l-10 10H10z" fill="#F59E1B"/><path d="M10 20l10-10h30l-10 10z" fill="#FFC85A"/><path d="M40 20l10-10v30l-10 10z" fill="#E68A0C"/><rect x="10" y="20" width="30" height="30" fill="#FFB13B"/></svg>'}];
+const GROSS=[
+  {n:"毛毛蟲",fg:"#163008",sh:DK,ty:2,svg:TS+'<circle cx="12" cy="46" r="8.5" fill="#86C140"/><circle cx="19" cy="38" r="9" fill="#73AE34"/><circle cx="28" cy="31" r="9.5" fill="#86C140"/><circle cx="37" cy="25" r="9.5" fill="#73AE34"/><circle cx="46" cy="18" r="10.5" fill="#9BD34F"/><circle cx="43" cy="15" r="2.6" fill="#FFFFFF"/><circle cx="50" cy="14" r="2.6" fill="#FFFFFF"/><circle cx="43.6" cy="15.4" r="1.2" fill="#1A1A1A"/><circle cx="50.6" cy="14.4" r="1.2" fill="#1A1A1A"/><path d="M42 6l-2-5M50 6l2-5" stroke="#4E7A22" stroke-width="2" stroke-linecap="round"/></svg>'},
+  {n:"眼球",fg:"#7A1426",sh:DK,ty:3,svg:TS+'<circle cx="30" cy="30" r="25" fill="#FFF7F2" stroke="#E8C4BC" stroke-width="2"/><path d="M8 26q6 2 9-2M10 40q5-2 9 2M50 40q-4 1-6 5M52 22q-4 1-7-2" stroke="#E04848" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="41" cy="19" r="9" fill="#5BA36B"/><circle cx="41" cy="19" r="4.5" fill="#1A1A1A"/><circle cx="43" cy="17" r="1.6" fill="#FFFFFF"/></svg>'},
+  {n:"魚骨頭",fg:"#16222C",sh:DK,ty:2,svg:TS+'<circle cx="30" cy="30" r="26" fill="#A9BBC9"/><path d="M8 30h36" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/><path d="M14 22l4 8-4 8M21 21l4 9-4 9M28 21l4 9-4 9M35 22l4 8-4 8" stroke="#FFFFFF" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 22q12 0 12 8t-12 8z" fill="#FFFFFF"/><path d="M48 27l3 3M51 27l-3 3" stroke="#556" stroke-width="1.4"/><path d="M8 30l-4-6M8 30l-4 6" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/></svg>'},
+  {n:"發霉起司",fg:"#3E2C00",sh:DK,ty:4,svg:TS+'<path d="M5 46L55 46L55 16Z" fill="#F7D25B" stroke="#E0B53A" stroke-width="2" stroke-linejoin="round"/><path d="M5 46h50v6H5z" fill="#E8BE45"/><circle cx="44" cy="34" r="3.5" fill="#E0B53A"/><circle cx="30" cy="40" r="2.5" fill="#E0B53A"/><circle cx="38" cy="26" r="6" fill="#7FB069" opacity=".9"/><circle cx="22" cy="42" r="5" fill="#6A9E57" opacity=".9"/><circle cx="50" cy="44" r="4" fill="#7FB069" opacity=".9"/><circle cx="36" cy="24" r="1.6" fill="#B7D9A5"/><circle cx="21" cy="40" r="1.4" fill="#B7D9A5"/></svg>'},
+  {n:"黏液",fg:"#132A06",sh:DK,ty:-2,svg:TS+'<path d="M8 32c0-14 10-24 22-24s22 10 22 24c0 6-3 9-6 9-2 0-3 4-4 9-1 3-5 3-6 0-1-5-3-7-6-7-3 0-4 7-6 10-3 3-7 1-6-3 1-5-1-8-4-9-4-1-6-3-6-9z" fill="#8BD14A"/><ellipse cx="22" cy="20" rx="6" ry="3.5" fill="#C9F08F" transform="rotate(-25 22 20)"/><circle cx="40" cy="34" r="2.5" fill="#B5E77A"/><circle cx="44" cy="22" r="1.6" fill="#B5E77A"/></svg>'},
+  {n:"毒菇",fg:"#FFFFFF",sh:LT,ty:-10,svg:TS+'<rect x="22" y="30" width="16" height="24" rx="6" fill="#F1E6D2" stroke="#D8C8AE" stroke-width="1.5"/><path d="M9 36C4 36 3 31.5 4.5 27 8 14 18 6 30 6s22 8 25.5 21c1.5 4.5.5 9-4.5 9z" fill="#8E44AD" stroke="#6C2E86" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="22" r="3.5" fill="#E9D7F2"/><circle cx="44" cy="20" r="4" fill="#E9D7F2"/><circle cx="31" cy="13" r="2.5" fill="#E9D7F2"/><circle cx="48" cy="30" r="2" fill="#E9D7F2"/></svg>'}];
+GROSS.push({n:"生肉",fg:"#FFFFFF",sh:LT,ty:0,svg:TS+'<path d="M9 24C11 13 22 6.5 33 7.5c9 1 17.5 6 19.5 14 1.5 6-.5 10 1.5 15 2 6.5-3 13.5-11.5 15.5-6 1.5-10 0-15 2-8 3-17.5 0-20.5-7-2.5-6 .5-9-.5-14-.5-3-.5-6 1.5-9z" fill="#F2D2C8" stroke="#C98F86" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 26C15.5 17.5 24 12.5 33 13.5c7.5 1 13.5 5 14.5 11.5.8 5-1 8.5.8 12.8 1.2 5-2.8 9-8.8 10.2-5 1-9 0-13 1.2-7 2-12.8-1-14.8-6-1.8-4.8.2-8-.8-12-.4-2.2-.2-4.2 1.8-5.2z" fill="#C9434F"/><ellipse cx="22" cy="19" rx="5" ry="2" fill="#FFFFFF" opacity=".22" transform="rotate(-20 22 19)"/><g stroke="#F2B3B5" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".9"><path d="M17 24q3-2 6 .5t5.5-.3"/><path d="M29.5 18.5q2.5 1.8 5.5-.2"/><path d="M16.5 36q4-1.5 7 1.5t6.5-.8"/><path d="M31 44q3-2 6 .2"/><path d="M38 25q3 1 3.6 4.2"/><path d="M24 30q2-1.4 3.6.4"/></g><circle cx="40" cy="37.5" r="5.6" fill="#F4EBDD" stroke="#D8C8AE" stroke-width="1.3"/><circle cx="40" cy="37.5" r="2.3" fill="#E2A396"/></svg>'});
+/* hand-drawn pastel restyle: coloured outlines, one soft shade, one highlight, slight wobble */
+const HD=inner=>TS+'<g filter="url(#hand)" stroke-linejoin="round" stroke-linecap="round">'+inner+'</g></svg>';
+const HL='<path d="M0 0" fill="none"/>';
+TOPPINGS.length=0;
+TOPPINGS.push(
+  {n:"草莓",fg:"#FFFFFF",sh:LT,ty:4,svg:HD('<path d="M30 54C16 46 8 35 10 24c1.5-7 9-10.5 20-7 11-3.5 18.5 0 20 7 2 11-6 22-20 30z" fill="#F7808F" stroke="#D2566B" stroke-width="2.4"/><path d="M30 53C22 48 16 42 13 35c8 6 23 7 34 0-3 7-9 13-17 18z" fill="#E86478" opacity=".4"/><g fill="#FFE9A8"><ellipse cx="19" cy="27" rx="1.2" ry="1.8"/><ellipse cx="41" cy="27" rx="1.2" ry="1.8"/><ellipse cx="17" cy="36" rx="1.2" ry="1.8"/><ellipse cx="43" cy="36" rx="1.2" ry="1.8"/><ellipse cx="30" cy="47" rx="1.2" ry="1.8"/><ellipse cx="23" cy="44" rx="1.2" ry="1.8"/><ellipse cx="37" cy="44" rx="1.2" ry="1.8"/></g><path d="M16 24q3-5 9-5" stroke="#FFFFFF" stroke-width="3" fill="none" opacity=".75"/><path d="M17 16q7 2 10-6 2 6 3 6t3-6q3 8 10 6-4 6-13 6t-13-6z" fill="#A6DB92" stroke="#62A55C" stroke-width="2"/>')},
+  {n:"橘子",fg:"#5A3300",sh:DK,ty:-9,svg:HD('<g transform="rotate(-10 30 32)"><path d="M10.5 45.5C5 45.5 5.5 40 6.5 35 9 21 19 13 30 13s21 8 23.5 22c1 5 1.5 10.5-4 10.5C41 36.5 19 36.5 10.5 45.5Z" fill="#FFBE5C" stroke="#E58E2E" stroke-width="2.4"/><path d="M12.5 44C21 35 39 35 47.5 44C39 37.5 21 37.5 12.5 44Z" fill="#F2A240" opacity=".45"/><path d="M11 38C11 26 20 18 30 18S49 26 49 38" stroke="#FFD994" stroke-width="3" fill="none"/><g stroke="#FFF3DC" stroke-width="1.4" fill="none"><path d="M18 21q1.5 3 1 6"/><path d="M42 21q-1.5 3-1 6"/></g><path d="M12 32q2-8 8-11" stroke="#FFFFFF" stroke-width="2.4" fill="none" opacity=".75"/></g>')},
+  {n:"藍莓",fg:"#FFFFFF",sh:LT,ty:2,svg:HD('<circle cx="30" cy="32" r="22" fill="#8EA2E6" stroke="#5D72BE" stroke-width="2.4"/><path d="M11 38c5 10 17 15 30 11 4-1 8-5 10-9-9 7-26 7-40-2z" fill="#7287D2" opacity=".45"/><path d="M30 10l2.5 4 4.5-1-1.5 4.5 3.5 3-4.5 1-1 4.5-3.5-3-3.5 3-1-4.5-4.5-1 3.5-3-1.5-4.5 4.5 1z" fill="#5568B0" stroke="#4A5C9E" stroke-width="1" transform="translate(0 2) scale(1 .8) translate(0 2)"/><circle cx="20" cy="26" r="4" fill="#FFFFFF" opacity=".6"/>')},
+  {n:"奇異果",fg:"#1F3A10",sh:DK,ty:0,svg:HD('<circle cx="30" cy="30" r="25" fill="#B4DE7C" stroke="#9B7A52" stroke-width="3.2"/><g stroke="#D3EDA9" stroke-width="1.4">'+Array.from({length:10},(_,i)=>{const a=i/10*Math.PI*2;return `<path d="M${(30+Math.cos(a)*10).toFixed(1)} ${(30+Math.sin(a)*10).toFixed(1)}L${(30+Math.cos(a)*20).toFixed(1)} ${(30+Math.sin(a)*20).toFixed(1)}"/>`}).join("")+'</g><ellipse cx="30" cy="30" rx="8.5" ry="7.5" fill="#F4F7D8" stroke="#DCE8B0" stroke-width="1.2"/><g fill="#3D3328">'+Array.from({length:12},(_,i)=>{const a=i/12*Math.PI*2+.2;const x=(30+Math.cos(a)*12.5).toFixed(1),y=(30+Math.sin(a)*12.5).toFixed(1);return `<ellipse cx="${x}" cy="${y}" rx=".9" ry="1.7" transform="rotate(${(i*30+102).toFixed(0)} ${x} ${y})"/>`}).join("")+'</g><path d="M14 22q3-6 9-8" stroke="#FFFFFF" stroke-width="2.4" fill="none" opacity=".6"/>')},
+  {n:"香蕉",fg:"#6A4A00",sh:DK,ty:0,svg:HD('<ellipse cx="30" cy="30" rx="23" ry="21.5" fill="#FFF2BF" stroke="#E7C766" stroke-width="2.4"/><ellipse cx="30" cy="30" rx="15" ry="14" fill="none" stroke="#F6E19A" stroke-width="1.6"/><g fill="#D9B860"><circle cx="30" cy="25.5" r="1.3"/><circle cx="26" cy="32.5" r="1.3"/><circle cx="34" cy="32.5" r="1.3"/></g><path d="M14 24q3-6 9-8" stroke="#FFFFFF" stroke-width="2.6" fill="none" opacity=".8"/>')},
+  {n:"巧克力",fg:"#FFFFFF",sh:LT,ty:0,svg:HD('<rect x="9" y="9" width="42" height="42" rx="8" fill="#A0704E" stroke="#6B4329" stroke-width="2.4" transform="rotate(7 30 30)"/><g stroke="#B9875F" stroke-width="1.6" transform="rotate(7 30 30)"><path d="M23 12v36M37 12v36M12 23h36M12 37h36"/></g><path d="M14 18q2-4 7-5" stroke="#FFFFFF" stroke-width="2.4" fill="none" opacity=".45" transform="rotate(7 30 30)"/>')},
+  {n:"鮮奶油",fg:"#8A6A4A",sh:DK,ty:5,svg:HD('<path d="M9 49c-5-7 1-15 8-13-2-10 7-17 14-12 4-9 17-8 18 2 8 1 9 15 2 23z" fill="#FFFDF7" stroke="#E2D2BE" stroke-width="2.4"/><path d="M18 41q8-6 18-1M24 30q5-4 11 0" stroke="#EDE2D3" stroke-width="2" fill="none"/><path d="M14 40q0-4 3-6" stroke="#FFFFFF" stroke-width="2.6" fill="none"/>')},
+  {n:"櫻桃",fg:"#FFFFFF",sh:LT,ty:7,svg:HD('<path d="M30 22Q32 9 45 5" stroke="#8A5A3C" stroke-width="2.4" fill="none"/><path d="M41 7q7-1 10 5-7 2-10-5z" fill="#A6DB92" stroke="#62A55C" stroke-width="1.6"/><circle cx="29" cy="38" r="18" fill="#EA5563" stroke="#B33544" stroke-width="2.4"/><path d="M13 42c3 9 13 14 23 11 4-1 8-5 10-9-9 6-22 6-33-2z" fill="#D23E4E" opacity=".4"/><ellipse cx="21" cy="31" rx="3.6" ry="2.4" fill="#FFFFFF" opacity=".8" transform="rotate(-30 21 31)"/>')},
+  {n:"鳳梨",fg:"#5A4300",sh:DK,ty:2,svg:HD('<path d="M10 43L21 12 50 21 46 50z" fill="#FFE071" stroke="#E3B83A" stroke-width="2.4"/><path d="M10 43L46 50 50 21 40 40z" fill="#F7CF4F" opacity=".5"/><g stroke="#EFC445" stroke-width="1.3" fill="none"><path d="M20 20l5 22"/><path d="M29 17l3 26"/><path d="M38 20l1 24"/></g><path d="M19 17q4-3 9-2" stroke="#FFFFFF" stroke-width="2.4" fill="none" opacity=".8"/>')}
+);
+GROSS.length=0;
+GROSS.push(
+  {n:"毛毛蟲",fg:"#163008",sh:DK,ty:2,svg:HD('<g stroke="#6E9C3E" stroke-width="2"><circle cx="12" cy="46" r="8" fill="#9ED062"/><circle cx="19" cy="38" r="8.5" fill="#B2DC76"/><circle cx="28" cy="31" r="9" fill="#9ED062"/><circle cx="37" cy="25" r="9" fill="#B2DC76"/></g><circle cx="46" cy="18" r="10" fill="#C3E58E" stroke="#6E9C3E" stroke-width="2.2"/><circle cx="43" cy="16" r="2.6" fill="#FFFFFF" stroke="#2E3A22" stroke-width="1"/><circle cx="50" cy="15" r="2.6" fill="#FFFFFF" stroke="#2E3A22" stroke-width="1"/><circle cx="43.5" cy="16.5" r="1.1" fill="#2E3A22"/><circle cx="50.5" cy="15.5" r="1.1" fill="#2E3A22"/><path d="M42 8l-3-6M50 7l3-6" stroke="#6E9C3E" stroke-width="2"/><path d="M45 22q2 1.5 4 0" stroke="#2E3A22" stroke-width="1.2" fill="none"/>')},
+  {n:"眼球",fg:"#7A1426",sh:DK,ty:3,svg:HD('<circle cx="30" cy="30" r="24" fill="#FFF8F3" stroke="#D9A9A0" stroke-width="2.4"/><path d="M8 27q6 2 9-2M10 41q5-2 9 2M50 41q-4 1-6 5M52 23q-4 1-7-2" stroke="#E86B6B" stroke-width="1.5" fill="none"/><circle cx="41" cy="20" r="9" fill="#7CC08A" stroke="#4E8C5C" stroke-width="1.8"/><circle cx="41" cy="20" r="4.4" fill="#22261F"/><circle cx="43.2" cy="17.8" r="1.6" fill="#FFFFFF"/>')},
+  {n:"魚骨頭",fg:"#1E2A36",sh:DK,ty:2,svg:HD('<circle cx="30" cy="30" r="25" fill="#D3DEE7" stroke="#97AABA" stroke-width="2.4"/><g stroke="#97AABA" stroke-width="4.4" fill="none"><path d="M10 30h33"/><path d="M15 22l4 8-4 8M22 21l4 9-4 9M29 21l4 9-4 9M36 22l3.5 8-3.5 8"/><path d="M10 30l-3-5M10 30l-3 5"/></g><g stroke="#FFFFFF" stroke-width="2" fill="none"><path d="M10 30h33"/><path d="M15 22l4 8-4 8M22 21l4 9-4 9M29 21l4 9-4 9M36 22l3.5 8-3.5 8"/><path d="M10 30l-3-5M10 30l-3 5"/></g><path d="M43 22q12 0 12 8t-12 8z" fill="#FFFFFF" stroke="#97AABA" stroke-width="1.8"/><path d="M47.5 27.5l3 3M50.5 27.5l-3 3" stroke="#5A6B7A" stroke-width="1.4"/>')},
+  {n:"發霉起司",fg:"#3E2C00",sh:DK,ty:4,svg:HD('<path d="M6 45L54 45L54 16Z" fill="#FFDB6E" stroke="#E0B33A" stroke-width="2.4"/><path d="M6 45h48v6H6z" fill="#F4C64E" stroke="#E0B33A" stroke-width="2"/><circle cx="45" cy="34" r="3.4" fill="#F2C14A"/><circle cx="31" cy="40" r="2.4" fill="#F2C14A"/><circle cx="38" cy="25" r="6" fill="#9CCB83" stroke="#6C9E5A" stroke-width="1.6"/><circle cx="22" cy="41" r="4.6" fill="#8BBF72" stroke="#6C9E5A" stroke-width="1.6"/><circle cx="50" cy="44" r="3.6" fill="#9CCB83" stroke="#6C9E5A" stroke-width="1.4"/><circle cx="36.5" cy="23.5" r="1.5" fill="#D2EAC4"/>')},
+  {n:"黏液",fg:"#132A06",sh:DK,ty:-2,svg:HD('<path d="M8 32c0-14 10-24 22-24s22 10 22 24c0 6-3 9-6 9-2 0-3 4-4 9-1 3-5 3-6 0-1-5-3-7-6-7-3 0-4 7-6 10-3 3-7 1-6-3 1-5-1-8-4-9-4-1-6-3-6-9z" fill="#A5DE66" stroke="#6AA83A" stroke-width="2.4"/><ellipse cx="22" cy="19" rx="6" ry="3.2" fill="#FFFFFF" opacity=".6" transform="rotate(-25 22 19)"/><circle cx="40" cy="34" r="2.6" fill="#C6EC98" stroke="#7DB84A" stroke-width="1"/><circle cx="44" cy="22" r="1.7" fill="#C6EC98"/>')},
+  {n:"毒菇",fg:"#FFFFFF",sh:LT,ty:-10,svg:HD('<rect x="22" y="30" width="16" height="24" rx="7" fill="#F5EBDB" stroke="#CDBBA0" stroke-width="2"/><path d="M9 36C4 36 3 31.5 4.5 27 8 14 18 6 30 6s22 8 25.5 21c1.5 4.5.5 9-4.5 9z" fill="#B06CD2" stroke="#7E43A3" stroke-width="2.4"/><g fill="#F0E2F8"><circle cx="16" cy="22" r="3.6"/><circle cx="44" cy="20" r="4"/><circle cx="31" cy="13" r="2.6"/><circle cx="48" cy="30" r="2"/></g><path d="M12 26q4-9 12-13" stroke="#FFFFFF" stroke-width="2.4" fill="none" opacity=".5"/>')},
+  {n:"生肉",fg:"#FFFFFF",sh:LT,ty:0,svg:HD('<path d="M9 24C11 13 22 6.5 33 7.5c9 1 17.5 6 19.5 14 1.5 6-.5 10 1.5 15 2 6.5-3 13.5-11.5 15.5-6 1.5-10 0-15 2-8 3-17.5 0-20.5-7-2.5-6 .5-9-.5-14-.5-3-.5-6 1.5-9z" fill="#F8DDD3" stroke="#D29A90" stroke-width="2.4"/><path d="M13.5 26C15.5 17.5 24 12.5 33 13.5c7.5 1 13.5 5 14.5 11.5.8 5-1 8.5.8 12.8 1.2 5-2.8 9-8.8 10.2-5 1-9 0-13 1.2-7 2-12.8-1-14.8-6-1.8-4.8.2-8-.8-12-.4-2.2-.2-4.2 1.8-5.2z" fill="#DE6470"/><g stroke="#F7C6C9" stroke-width="1.3" fill="none"><path d="M17 24q3-2 6 .5t5.5-.3"/><path d="M29.5 18.5q2.5 1.8 5.5-.2"/><path d="M16.5 36q4-1.5 7 1.5t6.5-.8"/><path d="M31 44q3-2 6 .2"/><path d="M38 25q3 1 3.6 4.2"/></g><circle cx="40" cy="37.5" r="5.6" fill="#F6EEE2" stroke="#D2C2A8" stroke-width="1.6"/><circle cx="40" cy="37.5" r="2.3" fill="#E5A99C"/><path d="M18 19q4-4 9-4" stroke="#FFFFFF" stroke-width="2" fill="none" opacity=".45"/>')}
+);
+/* cooking batter: raw → golden, edge browns, bubbles rise and pop into little holes */
+const COOK_SEC=24;
+let DONE_BG="", DONE_SH="";
+function batterColors(){
+  if(S.evil) return {raw:"#5A5262",cook:"#3A3341",edge:"#16121B",spot:"#221C29",line:"#120F16",bub:"#7B4BB0"};
+  const cr=CRUST[S.equip.crust];
+  if(cr.a==="rainbow") return {raw:"#FFF5E8",cook:"url(#rbwC)",edge:"#D99AB8",spot:"#E3A9C2",line:"#CF8DAC",bub:"#FFFFFF"};
+  return {raw:`color-mix(in srgb, ${cr.a} 35%, #FFF8EA)`,cook:cr.a,edge:cr.b,spot:cr.b,line:cr.b,bub:"#FFFFFF"};
+}
+function renderBatter(){
+  const bt=$("batter"); if(!bt) return;
+  const c=batterColors(); let bubs="", spots="";
+  for(let i=0;i<16;i++){
+    const edge=i<11, r=edge?60+Math.random()*30:Math.random()*55, a=Math.random()*Math.PI*2;
+    const x=(100+Math.cos(a)*r).toFixed(1), y=(100+Math.sin(a)*r).toFixed(1), s=2.2+Math.random()*(edge?3.4:2.4), d=(2+Math.random()*(COOK_SEC-6)).toFixed(1);
+    bubs+=`<circle class="hole" style="--d:${d}s;fill:${c.spot}" cx="${x}" cy="${y}" r="${(s*.5).toFixed(1)}"/><circle class="bub" style="--d:${d}s;fill:${c.bub};stroke:${c.line}" fill-opacity=".55" stroke-opacity=".55" stroke-width="1" cx="${x}" cy="${y}" r="${s.toFixed(1)}"/>`;
+  }
+  for(let i=0;i<8;i++){
+    const r=20+Math.random()*60, a=Math.random()*Math.PI*2, x=(100+Math.cos(a)*r).toFixed(1), y=(100+Math.sin(a)*r).toFixed(1);
+    spots+=`<ellipse class="spot" style="fill:${c.spot}" cx="${x}" cy="${y}" rx="${(5+Math.random()*10).toFixed(1)}" ry="${(3+Math.random()*6).toFixed(1)}" transform="rotate(${Math.floor(Math.random()*180)} ${x} ${y})"/>`;
+  }
+  bt.innerHTML=`<defs><radialGradient id="edgeG"><stop offset=".6" stop-color="${c.edge}" stop-opacity="0"/><stop offset=".92" stop-color="${c.edge}" stop-opacity=".75"/><stop offset="1" stop-color="${c.edge}" stop-opacity="1"/></radialGradient>
+    <linearGradient id="rbwC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F9C6D2"/><stop offset=".25" stop-color="#FBE0A8"/><stop offset=".5" stop-color="#D7EDB4"/><stop offset=".75" stop-color="#BFE0F5"/><stop offset="1" stop-color="#DACBF3"/></linearGradient></defs>
+    <g filter="url(#hand)">
+      <circle cx="100" cy="100" r="96" style="fill:${c.raw}"/>
+      <circle class="cook" cx="100" cy="100" r="96" style="fill:${c.cook}"/>
+      <g>${spots}</g>
+      <circle class="edge" cx="100" cy="100" r="96" fill="url(#edgeG)"/>
+      ${bubs}
+      <circle cx="100" cy="100" r="96" fill="none" style="stroke:${c.line}" stroke-width="2.6" stroke-opacity=".75"/>
+    </g>`;
+  bt.style.setProperty("--cook",COOK_SEC+"s");
+  bt.style.opacity="1";
+  bt.classList.remove("spread"); void bt.getBoundingClientRect(); bt.classList.add("spread");
+}
+function tops(){ return S.evil?GROSS:TOPPINGS; }
+const FILLER="aeiourstlnmdcphbgwykf";
+let G=null;
+function startGame(){
+  let q=buildQueue(), extra=false;
+  if(!q.length){ q=newList(5).map(w=>({w,isNew:true,miss:false})); extra=true; }
+  if(!q.length) return;
+  busy=true;
+  G={queue:q,pos:0,total:q.length,done:new Set(),firstTry:0,coins:0,extra,batch:[],sessionWords:[],qOk:0,qTot:0};
+  show("v-game"); applyLooks(); setCoins(); nextCrepe(true);
+}
+function nextCrepe(first){
+  const q=G.queue[G.pos], [w,def]=WORDS[q.w];
+  const letters=[...w].map(ch=>/[a-z]/i.test(ch)?{ch:ch.toLowerCase(),fixed:false}:{ch,fixed:true});
+  const need=letters.filter(l=>!l.fixed).map(l=>l.ch);
+  const nDis=Math.min(5,Math.max(3,Math.ceil(need.length/3)));
+  const pool=need.map(ch=>({ch,dis:false}));
+  for(let k=0;k<nDis;k++){ let c; do{ c=FILLER[Math.floor(Math.random()*FILLER.length)]; }while(need.length<26&&need.includes(c)&&Math.random()<.6); pool.push({ch:c,dis:true}); }
+  pool.sort(()=>Math.random()-.5);
+  pool.forEach((p,i)=>{ p.id=i; p.top=Math.floor(Math.random()*tops().length); p.state="tray"; });
+  const cust=pickCustomer(), firstVisit=!S.seen.includes(cust);
+  G.c={q,w,def,letters,pool,slots:letters.map(l=>l.fixed?{fixed:true,ch:l.ch}:{fixed:false,want:l.ch,pid:null,lock:false}),
+    hint:false,help:false,wrong:0,revealed:false,cust,firstVisit};
+  $("gFill").style.width=(G.done.size/G.total*100)+"%";
+  // customer
+  const cEl=$("customer"); cEl.className="customer enter"; cEl.innerHTML=custSVG(cust,"idle");
+  requestAnimationFrame(()=>requestAnimationFrame(()=>cEl.className="customer"));
+  const senses=parseSenses(def).slice(0,3).map(s=>`${s.p?`<span class="pos">${esc(s.p)}</span>`:""}${esc(s.t)}`).join("<br>");
+  const tag=q.isNew?"新單字":q.miss?"再做一次":"老顧客";
+  $("order").innerHTML=`<div class="who">${CUST[cust].n}${firstVisit?"（第一次來！）":""}・${tag}${S.evil?"・好像有點怕怕的…":""}</div><div class="zh">${senses}</div><div class="tools">${speakBtn()}<span class="hint">${need.length} 個字母</span></div>`;
+  // crepe
+  const cr=$("crepe"); cr.classList.remove("fold","wrap","spread"); void cr.offsetWidth; cr.classList.add("spread");
+  cr.style.background="transparent"; cr.style.boxShadow="none"; renderBatter();
+  const oldCone=document.querySelector(".cone"); if(oldCone) oldCone.remove();
+  const sk=$("stick"); sk.classList.remove("sweep"); void sk.getBoundingClientRect(); sk.classList.add("sweep");
+  renderSlots(); renderTray();
+  $("tHint").disabled=false; $("tHelp").disabled=false;
+  setTimeout(()=>speak(w), first?350:500);
+}
+function slotSize(){
+  const n=G.c.letters.length;
+  return n<=6?40:n<=9?34:n<=13?30:26;
+}
+function renderSlots(){
+  const c=G.c, sz=slotSize();
+  $("crepe").innerHTML=c.slots.map((s,i)=>{
+    if(s.fixed) return s.ch===" "?`<div class="slot gap"></div>`:`<div class="slot fixed" style="height:${sz}px;font-size:${sz*.55}px">${esc(s.ch)}</div>`;
+    const st=`width:${sz}px;height:${sz}px;font-size:${sz*.55}px`;
+    if(s.pid===null) return `<div class="slot" data-i="${i}" style="${st}"></div>`;
+    const p=c.pool[s.pid], t=tops()[p.top];
+    return `<button class="slot filled${s.lock?' ok':''}${s.hinted?' hinted':''}" data-i="${i}" style="${st};color:${t.fg}" aria-label="拿回 ${p.ch}">${t.svg}<span style="text-shadow:${t.sh};transform:translateY(${t.ty*0.5}%)">${esc(p.ch)}</span></button>`;
+  }).join("");
+}
+function renderTray(){
+  const c=G.c;
+  $("tray").innerHTML=c.pool.map(p=>{ const t=tops()[p.top];
+    return `<button class="top${p.state==='slot'?' used':''}${p.state==='gone'?' gone':''}" data-p="${p.id}" style="color:${t.fg}" aria-label="${t.n} ${p.ch}">${t.svg}<span style="text-shadow:${t.sh};transform:translateY(${t.ty}%)">${esc(p.ch)}</span></button>`; }).join("");
+}
+$("tray").addEventListener("click",e=>{
+  const b=e.target.closest(".top"); if(!b||!G||G.lockUI) return;
+  const c=G.c, p=c.pool[+b.dataset.p]; if(p.state!=="tray") return;
+  const si=c.slots.findIndex(s=>!s.fixed&&s.pid===null); if(si<0) return;
+  c.slots[si].pid=p.id; p.state="slot"; sfx.pop();
+  renderSlots(); renderTray();
+  if(c.slots.every(s=>s.fixed||s.pid!==null)) setTimeout(check,220);
+});
+$("crepe").addEventListener("click",e=>{
+  const b=e.target.closest(".slot.filled"); if(!b||!G||G.lockUI) return;
+  const s=G.c.slots[+b.dataset.i]; if(s.lock) return;
+  G.c.pool[s.pid].state="tray"; s.pid=null; sfx.back(); renderSlots(); renderTray();
+});
+$("order").addEventListener("click",e=>{ if(e.target.closest("[data-speak]")) speak(G.c.w); });
+$("tClear").addEventListener("click",()=>{
+  if(!G||G.lockUI) return; const c=G.c;
+  c.slots.forEach(s=>{ if(!s.fixed&&s.pid!==null&&!s.lock){ c.pool[s.pid].state="tray"; s.pid=null; } }); sfx.back(); renderSlots(); renderTray();
+});
+$("tHint").addEventListener("click",()=>{
+  if(!G||G.lockUI||G.c.hint) return; const c=G.c;
+  const si=c.slots.findIndex(s=>!s.fixed&&!s.lock&&(s.pid===null||c.pool[s.pid].ch!==s.want)); if(si<0) return;
+  const s=c.slots[si];
+  if(s.pid!==null){ c.pool[s.pid].state="tray"; s.pid=null; }
+  let p=c.pool.find(p=>p.state==="tray"&&p.ch===s.want);
+  if(!p){ // the right topping sits in a later slot: take it back
+    const other=c.slots.find(o=>!o.fixed&&!o.lock&&o.pid!==null&&c.pool[o.pid].ch===s.want);
+    if(other){ p=c.pool[other.pid]; other.pid=null; }
+  }
+  if(!p) return;
+  s.pid=p.id; s.lock=true; s.hinted=true; p.state="slot"; c.hint=true; $("tHint").disabled=true; sfx.pop();
+  renderSlots(); renderTray();
+  if(c.slots.every(s=>s.fixed||s.pid!==null)) setTimeout(check,220);
+});
+$("tHelp").addEventListener("click",()=>{
+  if(!G||G.lockUI||G.c.help) return; const c=G.c;
+  const dis=c.pool.filter(p=>p.dis&&p.state==="tray"); const n=Math.ceil(dis.length/2);
+  dis.sort(()=>Math.random()-.5).slice(0,n).forEach(p=>p.state="gone");
+  c.help=true; $("tHelp").disabled=true; sfx.back(); renderTray();
+  sealMood($("chef"),"happy");
+});
+function check(){
+  if(!G||G.lockUI) return;
+  const c=G.c; if(c.slots.some(s=>!s.fixed&&s.pid===null)) return;
+  let allOk=true;
+  c.slots.forEach(s=>{ if(s.fixed) return; const ok=c.pool[s.pid].ch===s.want; if(ok) s.lock=true; else allOk=false; });
+  if(allOk) return success();
+  c.wrong++; sfx.bad();
+  $("customer").innerHTML=custSVG(c.cust,"hmm"); sealMood($("chef"),"think");
+  renderSlots();
+  c.slots.forEach((s,i)=>{ if(!s.fixed&&!s.lock){ const el=$("crepe").querySelector(`[data-i="${i}"]`); if(el) el.classList.add("bad"); } });
+  G.lockUI=true;
+  setTimeout(()=>{
+    c.slots.forEach(s=>{ if(!s.fixed&&!s.lock){ c.pool[s.pid].state="tray"; s.pid=null; } });
+    G.lockUI=false;
+    if(c.wrong>=3) return reveal();
+    $("customer").innerHTML=custSVG(c.cust,"idle"); renderSlots(); renderTray();
+  },650);
+}
+function reveal(){
+  const c=G.c; c.revealed=true;
+  c.slots.forEach(s=>{ if(s.fixed||s.lock) return; const p=c.pool.find(p=>p.state==="tray"&&p.ch===s.want); if(p){ s.pid=p.id; p.state="slot"; s.lock=true; s.hinted=true; } });
+  renderSlots(); renderTray(); speak(c.w);
+  finishCrepe(false,true);
+}
+function success(){ renderSlots(); sfx.ok(); finishCrepe(true,false); }
+function finishCrepe(ok,revealed){
+  const c=G.c, q=c.q;
+  const clean = ok && !c.hint && !c.help && c.wrong===0;
+  let coins = revealed?ECON.reveal : clean?ECON.perfect : (c.hint&&c.help)?ECON.both : c.hint?ECON.hint : c.help?ECON.help : ECON.perfect;
+  if(!revealed && c.wrong>0) coins=Math.min(coins,ECON.wrong);
+  if(q.miss&&coins>0) coins=Math.max(1,Math.round(coins*ECON.retryFactor));
+  if(G.extra&&coins>0) coins=Math.max(1,Math.round(coins/2));
+  let tip=0; if(!revealed && Math.random()<ECON.tipChance) tip=ECON.tipMin+Math.floor(Math.random()*(ECON.tipMax-ECON.tipMin+1));
+  // learning record
+  if(q.isNew && !G.done.has(q.w)) S.newDone++;
+  if(clean){ grade(q,true); if(!q.miss&&!G.done.has(q.w)) G.firstTry++; G.done.add(q.w); }
+  else{
+    grade(q,false);
+    if(!q.miss) G.queue.splice(Math.min(G.pos+4,G.queue.length),0,{w:q.w,isNew:false,miss:true});
+    else { S.s[q.w]={b:1,d:today()+1}; G.done.add(q.w); }
+    if(q.miss) {}
+  }
+  if(c.firstVisit && !S.seen.includes(c.cust)) S.seen.push(c.cust);
+  S.lastActive=today();
+  if(S.evil && !revealed){ S.purify=(S.purify||0)+1; if(S.purify>=PURIFY_N){ S.evil=false; S.purify=0; S.evilDay=null; S.wiped=false; G.purified=true; } }
+  if(!q.miss && !G.sessionWords.includes(q.w)){ G.sessionWords.push(q.w); G.batch.push(q.w); }
+  G.coins+=coins+tip; addCoins(coins+tip);
+  save();
+  G.lockUI=true;
+  setTimeout(()=>rollCrepe(()=>{
+    $("customer").innerHTML=custSVG(c.cust, revealed?"hmm":"happy"); sealMood($("chef"),"happy");
+    setTimeout(()=>showResult(coins,tip,clean,revealed),550);
+  }), revealed?1100:350);
+}
+function coneSVG(){
+  const cr=CRUST[S.equip.crust], a=S.evil?"#3A3440":cr.a==="rainbow"?"#F9C6D2":cr.a, b=S.evil?"#1B171F":cr.b;
+  return `<svg viewBox="0 0 100 124" aria-hidden="true">
+    <path d="M12 44L50 120 88 44z" fill="${a}" stroke="${b}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M12 44q38 14 76 0" fill="none" stroke="${b}" stroke-width="3"/>
+    <path d="M24 70L50 120 76 70z" fill="#FFFFFF" stroke="#F4B8C6" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M33 70l17 34M45 70l9 18M57 70l-10 20" stroke="#FFD3DD" stroke-width="4" stroke-linecap="round"/>
+    <path d="M16 46c-6-10 4-18 11-14 0-12 15-16 21-7 7-9 23-6 22 6 10-2 15 9 9 16z" fill="#FFFFFF" stroke="#E6DCCF" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M30 30c-6-4-8-9-6-13 3-2 6-1 7 1 1-2 5-3 7-1 2 4-2 9-8 13z" fill="#F0506A"/><path d="M26 17q4 2 5-1 1 3 5 1" stroke="#5DBB63" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <circle cx="60" cy="26" r="7" fill="#4E66C8"/><circle cx="58" cy="24" r="2" fill="#8FA3EE"/>
+    <rect x="66" y="6" width="6" height="28" rx="3" fill="#6E412A" transform="rotate(20 69 20)"/>
+    <circle cx="46" cy="20" r="5" fill="#FFC165"/>
+  </svg>`;
+}
+function rollCrepe(done){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ done(); return; }
+  const cr=$("crepe"), wrap=document.querySelector(".griddle-wrap");
+  cr.style.background=DONE_BG; cr.style.boxShadow=DONE_SH;
+  const bt=$("batter"); if(bt) bt.style.opacity="0";
+  cr.classList.remove("spread"); cr.classList.add("fold"); tone([392,523],.12,"sine",.12,.06);
+  setTimeout(()=>{ cr.classList.add("wrap"); },560);
+  setTimeout(()=>{
+    const cone=document.createElement("div"); cone.className="cone"; cone.innerHTML=coneSVG(); wrap.appendChild(cone);
+    void cone.offsetWidth; cone.classList.add("pop"); sfx.pop();
+    setTimeout(()=>{ cone.classList.remove("pop"); cone.classList.add("fly"); },850);
+    setTimeout(()=>{ cone.remove(); done(); },1400);
+  },900);
+}
+function showResult(coins,tip,clean,revealed){
+  const c=G.c;
+  const msg = revealed ? "這次是海豹幫忙拼的，沒有金幣。等一下會再出現一次，加油！" : clean ? "一次就拼對，太厲害了！" : "完成了！這個字等一下會再複習一次。";
+  $("sheet").innerHTML=`<div style="width:92px">${custSVG(c.cust,revealed?"hmm":"happy")}</div>
+    <div class="big">${esc(c.w)}</div>${sensesHTML(c.def)}
+    <div class="row" style="justify-content:center">${speakBtn()}${coins+tip>0?`<span class="earn"><span class="coin">$</span>+${coins}${tip?`　小費 +${tip}`:""}</span>`:""}</div>
+    ${c.firstVisit?`<div class="note">新客人「${CUST[c.cust].n}」加入圖鑑了！</div>`:""}
+    <div class="note">${msg}</div>
+    ${G.purified?`<div class="note" style="color:var(--accent)">淨化完成！海豹恢復正常了！</div>`:S.evil?`<div class="note">淨化進度 ${S.purify}/${PURIFY_N}${revealed?"（海豹幫忙拼的不算）":""}</div>`:""}
+    <button class="btn-main" id="nextBtn">${G.pos+1>=G.queue.length?"打烊囉":"下一位客人"}</button>`;
+  $("result").hidden=false;
+  $("nextBtn").focus({preventScroll:true});
+}
+$("sheet").addEventListener("click",e=>{
+  if(e.target.closest("[data-speak]")) return speak(QZ?WORDS[QZ.items[QZ.k].w][0]:G.c.w);
+  if(QZ){
+    const ob=e.target.closest(".qz-opt"); if(ob) return quizAnswer(+ob.dataset.i);
+    if(e.target.closest("#qzNext")) return quizNext();
+    if(e.target.closest("#qzDone")){ const d=QZ.done; QZ=null; $("result").hidden=true; if(G) G.lockUI=false; d(); return; }
+    return;
+  }
+  if(e.target.closest("#nextBtn")){
+    $("result").hidden=true; G.lockUI=false;
+    if(G.purified){ G.purified=false; applyLooks(); toast("海豹恢復正常了！"); confetti(); sfx.buy(); }
+    const last=G.pos+1>=G.queue.length;
+    const proceed=()=>{ $("customer").className="customer leave"; setTimeout(()=>{ G.pos++; if(G.pos>=G.queue.length) finishGame(); else nextCrepe(false); },380); };
+    if(last && G.sessionWords.length>=3){ G.batch=[]; return runQuiz(sample(G.sessionWords,QUIZ_END),"打烊小考",proceed); }
+    if(!last && G.batch.length>=QUIZ_EVERY){ const b=G.batch.splice(0); return runQuiz(b,"海豹小考",proceed); }
+    proceed();
+  }
+});
+/* ===== meaning quiz ===== */
+let QZ=null;
+function sample(arr,n){ return [...arr].sort(()=>Math.random()-.5).slice(0,n); }
+function shortDef(i){ const s=parseSenses(WORDS[i][1])[0]; return (s?s.t:WORDS[i][1]).split("、").slice(0,2).join("、"); }
+function runQuiz(words,title,done){
+  const items=words.map(w=>{ const right=shortDef(w), opts=new Set([right]); let g=0;
+    while(opts.size<4&&g<80){ g++; const j=Math.floor(Math.random()*N); if(j!==w){ const d=shortDef(j); if(d&&d!==right) opts.add(d); } }
+    const arr=[...opts].sort(()=>Math.random()-.5); return {w,arr,a:arr.indexOf(right),ans:null}; });
+  QZ={items,k:0,ok:0,title,done}; G.lockUI=true; renderQuiz();
+}
+function renderQuiz(){
+  const it=QZ.items[QZ.k], w=WORDS[it.w][0];
+  $("sheet").innerHTML=`<div class="qz-h">${QZ.title}　${QZ.k+1} / ${QZ.items.length}</div>
+    <div class="big">${esc(w)}</div>${speakBtn()}
+    <div class="note">選出它的中文意思</div>
+    <div class="qz-opts">${it.arr.map((t,i)=>`<button class="qz-opt" data-i="${i}">${esc(t)}</button>`).join("")}</div>
+    <div class="note" id="qzFb"></div>
+    <button class="btn-main" id="qzNext" hidden>${QZ.k+1<QZ.items.length?"下一題":"看結果"}</button>`;
+  $("result").hidden=false; setTimeout(()=>speak(w),250);
+}
+function quizAnswer(i){
+  const it=QZ.items[QZ.k]; if(it.ans!==null) return; it.ans=i;
+  const ok=i===it.a;
+  document.querySelectorAll(".qz-opt").forEach((b,j)=>{ b.disabled=true; if(j===it.a) b.classList.add("right"); else if(j===i) b.classList.add("wrong"); });
+  if(ok){ QZ.ok++; G.coins+=QUIZ_COIN; addCoins(QUIZ_COIN); sfx.ok(); $("qzFb").textContent=`答對了！+${QUIZ_COIN} 金幣`; }
+  else{ sfx.bad(); S.s[it.w]={b:1,d:today()+1}; $("qzFb").textContent="這個字明天會再複習一次。"; }
+  save(); $("qzNext").hidden=false;
+}
+function quizNext(){
+  QZ.k++;
+  if(QZ.k<QZ.items.length) return renderQuiz();
+  const n=QZ.items.length; G.qOk+=QZ.ok; G.qTot+=n;
+  const missed=QZ.items.filter(x=>x.ans!==x.a);
+  $("sheet").innerHTML=`<div class="qz-h">${QZ.title}</div><div style="width:110px">${sealSVG(110,hat(),S.evil)}</div>
+    <div class="big">${QZ.ok} / ${n}</div>
+    <div class="note">${QZ.ok===n?"全對！這些字都記住了。":"下面這幾個字明天會再出現："}</div>
+    ${missed.length?`<div class="qz-miss">${missed.map(x=>`<div><b>${esc(WORDS[x.w][0])}</b>　${esc(shortDef(x.w))}</div>`).join("")}</div>`:""}
+    <button class="btn-main" id="qzDone">繼續</button>`;
+  if(QZ.ok===n) sealMood($("sheet"),"happy");
+}
+$("gQuit").addEventListener("click",()=>{ busy=false; G=null; QZ=null; $("result").hidden=true; show("v-home"); renderHome(); });
+function dayComplete(){
+  const t=today(); let bonus=0;
+  if(S.lastDay!==t){ S.streak=(S.lastDay===t-1)?S.streak+1:1; S.lastDay=t; }
+  if(S.bonusDay!==t && dueList().length===0 && newList(Math.max(0,S.newPerDay-S.newDone)).length===0){ S.bonusDay=t; bonus=ECON.dailyBonus; S.coins+=bonus; }
+  save(); pushRemote(); return bonus;
+}
+function finishGame(){
+  busy=false; const bonus=dayComplete();
+  $("sTotal").textContent=G.done.size; $("sTotalL").textContent="做了幾個"; $("sGood").textContent=G.firstTry; $("sCoins").textContent=G.coins+bonus;
+  $("sealDone").innerHTML=sealSVG(150,hat(),S.evil);
+  $("doneTitle").textContent="今天打烊囉！";
+  $("doneText").textContent=(bonus?`完成今天的份量，加送 ${bonus} 金幣。`:"")+(G.qTot?`小考答對 ${G.qOk}/${G.qTot}。`:"")+`已經連續 ${S.streak} 天。去商店看看能換什麼吧！`;
+  show("v-done"); sealMood($("sealDone"),"happy"); confetti(); G=null;
+}
+
+/* ===== flashcards ===== */
+let queue=[],pos=0,flipped=false,sess=null;
+function startCards(){
+  queue=buildQueue(); if(!queue.length) return;
+  pos=0; busy=true; sess={total:queue.length,firstTry:0,seen:new Set()};
+  show("v-study"); renderCard();
+}
+function renderCard(){
+  const q=queue[pos],[w,def]=WORDS[q.w];
+  const tag=q.isNew?`<span class="tag new">新單字</span>`:q.miss?`<span class="tag">再試一次</span>`:`<span class="tag">複習</span>`;
+  if(S.dir==="en"){ $("front").innerHTML=`${tag}<div class="word">${esc(w)}</div>${speakBtn()}<div class="hint">先在心裡想想中文意思</div>`; }
+  else{ $("front").innerHTML=`${tag}${sensesHTML(def)}<div class="hint">先在心裡拼拼看英文</div>`; }
+  $("back").innerHTML=`<div class="word">${esc(w)}</div>${sensesHTML(def)}${speakBtn()}`;
+  flipped=false; $("card").classList.remove("flipped"); $("flipBtn").hidden=false; $("answers").hidden=true;
+  $("fill").style.width=(sess.seen.size/sess.total*100)+"%"; $("tally").textContent=`${sess.seen.size} / ${sess.total}`;
+}
+function flip(){ if(flipped) return; flipped=true; $("card").classList.add("flipped"); $("flipBtn").hidden=true; $("answers").hidden=false; if(S.dir==="zh") speak(WORDS[queue[pos].w][0]); }
+$("card").addEventListener("click",e=>{ if(e.target.closest("[data-speak]")){ e.stopPropagation(); speak(WORDS[queue[pos].w][0]); return; } flip(); });
+$("card").addEventListener("keydown",e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); flip(); }});
+$("flipBtn").addEventListener("click",flip);
+function answer(good){
+  const q=queue[pos];
+  S.lastActive=today();
+  if(q.isNew&&!sess.seen.has(q.w)) S.newDone++;
+  if(good){ if(!q.miss&&!sess.seen.has(q.w)) sess.firstTry++; grade(q,true); sess.seen.add(q.w); }
+  else{ grade(q,false); queue.splice(Math.min(pos+4,queue.length),0,{w:q.w,isNew:false,miss:true}); }
+  save(); pos++;
+  if(pos>=queue.length) finishCards(); else renderCard();
+}
+$("bGood").addEventListener("click",()=>answer(true));
+$("bAgain").addEventListener("click",()=>answer(false));
+$("quit").addEventListener("click",()=>{ busy=false; show("v-home"); renderHome(); });
+function finishCards(){
+  busy=false; const bonus=dayComplete();
+  $("sTotal").textContent=sess.seen.size; $("sTotalL").textContent="練了幾張"; $("sGood").textContent=sess.firstTry; $("sCoins").textContent=bonus;
+  $("sealDone").innerHTML=sealSVG(150,hat(),S.evil);
+  $("doneTitle").textContent="今天完成了！";
+  $("doneText").textContent=(bonus?`完成今天的份量，加送 ${bonus} 金幣。`:"")+`已經連續 ${S.streak} 天。翻卡不送金幣，做可麗餅才有喔。`;
+  show("v-done"); sealMood($("sealDone"),"happy"); confetti();
+}
+$("backHome").addEventListener("click",()=>{ show("v-home"); renderHome(); });
+$("startGame").addEventListener("click",startGame);
+$("startCards").addEventListener("click",startCards);
+
+/* ===== shop ===== */
+function swatch(cat,i){
+  const it=cat.list[i];
+  if(cat.k==="crust") return `<div class="sw" style="background:${it.a==='rainbow'?fillOf(it):`radial-gradient(circle,${it.a} 0 55%,${it.b} 100%)`}"></div>`;
+  if(cat.k==="stove") return `<div class="sw" style="border-radius:14px;background:${it.a};box-shadow:inset 0 -5px 0 ${it.b}"><div style="width:60%;aspect-ratio:1;border-radius:50%;background:${it.b}"></div></div>`;
+  if(cat.k==="stick") return `<div class="sw" style="background:var(--surface)"><svg viewBox="0 0 40 40" width="40"><rect x="6" y="12" width="28" height="5" rx="2.5" fill="${it.a==='rainbow'?'#F7B0C1':it.a}"/><rect x="17.5" y="12" width="5" height="22" rx="2.5" fill="${it.a==='rainbow'?'#A9D6F2':it.a}"/>${it.star?'<path d="M20 2l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z" fill="#F5B83D"/>':''}</svg></div>`;
+  const icons=["","▼▲","✿","∙∙∙","ABC","▢","✦"];
+  return `<div class="sw" style="background:var(--surface);font-family:var(--f-word);font-weight:700;color:var(--accent);font-size:15px">${icons[i]||""}</div>`;
+}
+function renderShop(){
+  setCoins();
+  let h="";
+  for(const cat of CATS){
+    const owned=S.owned[cat.k];
+    h+=`<div class="panel shelf"><h3>${cat.t}<small>${owned}/6</small></h3><div class="items">`;
+    cat.list.forEach((it,i)=>{
+      const have = i<=owned, next = i===owned+1, price = i>0?ECON.prices[i-1]:0;
+      const eq = cat.equip ? S.equip[cat.k]===i : false;
+      const cls=["item-card", eq?"equipped":"", (!have&&!next)?"locked":"", (next&&S.coins>=price)?"affordable":""].join(" ");
+      const label = have ? (cat.equip ? (eq?"使用中":"換上") : (i===0?"":"已裝上")) : next ? `<span class="coin">$</span>${price}` : `<span class="coin">$</span>${price}`;
+      h+=`<button class="${cls}" data-k="${cat.k}" data-i="${i}" ${(!have&&!next)?'aria-disabled="true"':''}>${swatch(cat,i)}<span class="nm">${esc(it.n)}</span><span class="pr">${label}</span>${(next&&S.coins>=price)?'<span class="badge">可兌換</span>':''}</button>`;
+    });
+    h+=`</div></div>`;
+  }
+  const skinCard=(id,name,sub,owned,price)=>{ const eq=S.skin===id; const lab=owned?(eq?"使用中":"換上"):`<span class="coin">$</span>${price}`;
+    return `<button class="item-card${eq?" equipped":""}${(!owned&&S.coins>=price)?" affordable":""}" data-skin="${id}"><div class="sw" style="width:84px;height:62px;border-radius:14px;background:var(--surface)">${sealSVG(76,"",false,id)}</div><span class="nm">${name}</span><span class="hint" style="font-size:12px">${sub}</span><span class="pr">${lab}</span>${(!owned&&S.coins>=price)?'<span class="badge">可兌換</span>':''}</button>`; };
+  h+=`<div class="panel shelf"><h3>海豹造型<small>${S.skins.banana?2:1}/2</small></h3><div class="items">${skinCard("classic","小白海豹","原本的海豹",true,0)}${skinCard("banana","香蕉海豹","自己畫的",S.skins.banana,SKIN_PRICE)}</div></div>`;
+  const allDone=CATS.every(c=>S.owned[c.k]>=6);
+  h+=`<div class="panel"><div class="grand"><div class="sw">${sealSVG(72,true,false,"classic")}</div><div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
+    <b style="font-weight:400;font-size:17px">海豹主廚的招牌店</b>
+    <span class="hint">${S.grand?"已經是招牌店了！海豹戴上了主廚帽。":allDone?"四類升級都完成了，可以換大獎了！":"四類升級全部完成後解鎖：海豹戴上主廚帽，店門口掛上招牌。"}</span>
+    ${S.grand?"":`<button class="btn-main" id="buyGrand" ${(!allDone||S.coins<ECON.grand)?"disabled":""} style="font-size:16px;padding:11px 16px"><span style="display:inline-flex;gap:6px;align-items:center">兌換　<span class="coin">$</span>${ECON.grand}</span></button>`}
+    </div></div></div>`;
+  h+=`<div class="panel"><h2>客人圖鑑　${S.seen.length}/${CUST.length}</h2><div class="dex">${CUST.map((c,i)=>{const s=S.seen.includes(i);return `<div class="${s?'':'unseen'}">${custSVG(i,"idle")}<span>${s?c.n:"？？"}</span></div>`}).join("")}</div>
+    <div class="hint">做可麗餅時會遇到不同的客人，有些客人很少出現。</div></div>`;
+  $("shelves").innerHTML=h;
+}
+$("shelves").addEventListener("click",e=>{
+  const skb=e.target.closest("[data-skin]");
+  if(skb){
+    const id=skb.dataset.skin;
+    if(id==="classic"||S.skins[id]){ S.skin=id; save(); sfx.pop(); renderShop(); return; }
+    if(S.coins<SKIN_PRICE){ toast(`還差 ${SKIN_PRICE-S.coins} 金幣`); return; }
+    S.coins-=SKIN_PRICE; S.skins[id]=true; S.skin=id; save(); sfx.buy(); confetti(); toast("換上香蕉海豹了！"); renderShop(); return;
+  }
+  if(e.target.closest("#buyGrand")){
+    if(S.coins<ECON.grand) return; S.coins-=ECON.grand; S.grand=true; save(); sfx.buy(); confetti(); toast("恭喜！變成招牌店了"); renderShop(); return;
+  }
+  const b=e.target.closest(".item-card"); if(!b) return;
+  const k=b.dataset.k, i=+b.dataset.i, cat=CATS.find(c=>c.k===k), owned=S.owned[k];
+  if(i<=owned){ if(cat.equip){ S.equip[k]=i; save(); sfx.pop(); renderShop(); } return; }
+  if(i!==owned+1){ toast("要先換前面的才行"); return; }
+  const price=ECON.prices[i-1];
+  if(S.coins<price){ toast(`還差 ${price-S.coins} 金幣`); return; }
+  S.coins-=price; S.owned[k]=i; if(cat.equip) S.equip[k]=i; save(); sfx.buy(); toast(`換到「${cat.list[i].n}」了！`); renderShop();
+});
+$("toShop").addEventListener("click",()=>{ show("v-shop"); renderShop(); });
+$("shopBack").addEventListener("click",()=>{ show("v-home"); renderHome(); });
+
+/* ===== confetti ===== */
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c=$("confetti"),x=c.getContext("2d"); c.hidden=false;
+  const W=c.width=innerWidth*devicePixelRatio,H=c.height=innerHeight*devicePixelRatio;
+  const cs=getComputedStyle(document.documentElement), cols=["--accent","--good","--again","--coin"].map(v=>cs.getPropertyValue(v).trim());
+  const P=Array.from({length:90},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*14*devicePixelRatio,vy:(-Math.random()*16-6)*devicePixelRatio,r:(Math.random()*5+4)*devicePixelRatio,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*6,s:Math.random()<.5}));
+  let f=0;(function tick(){ x.clearRect(0,0,W,H);
+    for(const p of P){ p.vy+=.5*devicePixelRatio; p.x+=p.vx; p.y+=p.vy; p.vx*=.99; p.a+=.15; x.save(); x.translate(p.x,p.y); x.rotate(p.a); x.fillStyle=p.c; if(p.s){x.beginPath();x.arc(0,0,p.r*.6,0,7);x.fill();}else x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2); x.restore(); }
+    if(++f<150) requestAnimationFrame(tick); else { x.clearRect(0,0,W,H); c.hidden=true; } })();
+}
+
+/* ===== list ===== */
+let filter="all",shown=150;
+function status(i){ const s=S.s[i]; if(!s) return "new"; return s.b>=KNOWN_BOX?"known":"learning"; }
+function renderList(){
+  const q=$("q").value.trim().toLowerCase(), rows=[];
+  for(let i=0;i<N;i++){ const st=status(i); if(filter!=="all"&&st!==filter) continue; const [w,d]=WORDS[i]; if(q&&!w.toLowerCase().includes(q)&&!d.includes(q)) continue; rows.push([i,st]); }
+  const color={known:"var(--good)",learning:"var(--accent)",new:"var(--line)"};
+  $("list").innerHTML=rows.slice(0,shown).map(([i,st])=>`<div class="item"><span class="dot" style="background:${color[st]}"></span><div><div class="w">${esc(WORDS[i][0])}</div><div class="d">${esc(WORDS[i][1])}</div></div></div>`).join("")
+    +(rows.length>shown?`<button class="more" id="more">再顯示更多（還有 ${rows.length-shown} 個）</button>`:"")+(rows.length===0?`<div class="more">沒有符合的單字</div>`:"");
+  const m=$("more"); if(m) m.addEventListener("click",()=>{ shown+=300; renderList(); });
+}
+$("toList").addEventListener("click",()=>{ shown=150; show("v-list"); renderList(); });
+$("listBack").addEventListener("click",()=>{ show("v-home"); renderHome(); });
+$("q").addEventListener("input",()=>{ shown=150; renderList(); });
+$("filters").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; filter=b.dataset.f; for(const c of $("filters").children) c.setAttribute("aria-pressed",String(c===b)); shown=150; renderList(); });
+
+$("sealDone").innerHTML=sealSVG(150,false);
+if(PREVIEW){ $("pvBar").hidden=false; }
+$("pvExit").addEventListener("click",()=>{ if(REAL){ S.evil=REAL.evil; S.purify=REAL.purify; S.evilDay=REAL.evilDay; S.wiped=REAL.wiped; } PREVIEW=false; REAL=null; $("pvBar").hidden=true; try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){} document.body.classList.toggle("evil",!!S.evil); show("v-home"); renderHome(); if(!$("v-game").hidden) applyLooks(); });
+renderHome();
+</script>
+
+</body></html>
