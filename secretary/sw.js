@@ -1,5 +1,5 @@
 // 小秘書離線支援：先走網路拿最新版，沒網路才用上次存下來的。
-const CACHE = 'secretary-shell-v1';
+const CACHE = 'secretary-shell-v2';
 
 self.addEventListener('install', (e) => { self.skipWaiting(); });
 self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
