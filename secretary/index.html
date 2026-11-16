@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>小秘書</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="小秘書">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f3f5ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141a18" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* 版面：上方角色與泡泡，下面是天氣、最近的日子、類別格子；點類別進清單，底部固定新增列。 */
+  :root {
+    --bg: #f3f5ef;
+    --surface: #ffffff;
+    --surface-2: #e7ebe2;
+    --ink: #23302b;
+    --muted: #6d7a73;
+    --line: #d6dcd2;
+    --accent: #1f8a70;
+    --accent-soft: #d6efe6;
+    --lamp: #ffb84d;
+    --display: "LXGW WenKai TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    --body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141a18; --surface: #1d2523; --surface-2: #27312e; --ink: #e6ece8; --muted: #98a59f;
+      --line: #33403c; --accent: #5cc9aa; --accent-soft: #1f3a33; --lamp: #ffc66b;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0 auto; max-width: 640px; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--body);
+    display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
+  }
+  [hidden] { display: none !important; }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .stage { flex: none; display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px 10px; }
+  .avatar { flex: none; width: 92px; height: 100px; border: none; background: none; padding: 0; }
+  .avatar svg, .avatar img { width: 100%; height: 100%; object-fit: contain; overflow: visible; display: block; }
+  .avatar .float { animation: float 4s ease-in-out infinite; }
+  .avatar .eye { transform-origin: center; transform-box: fill-box; animation: blink 5s infinite; }
+  .avatar.happy .float { animation: hop 0.5s ease-out 2; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+  @keyframes blink { 0%,94%,100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+  @media (prefers-reduced-motion: reduce) { .avatar .float, .avatar .eye, .avatar.happy .float { animation: none; } }
+  .bubble {
+    flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 4px 18px 18px 18px;
+    padding: 12px 14px; font-family: var(--display); font-size: 17px; line-height: 1.65; overflow-wrap: anywhere; white-space: pre-wrap;
+  }
+
+  main { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 16px 24px; -webkit-overflow-scrolling: touch; }
+  .view { display: flex; flex-direction: column; gap: 16px; }
+  .sec { display: flex; flex-direction: column; gap: 8px; }
+  .sec-title { margin: 0; font-size: 13px; color: var(--muted); letter-spacing: 0.04em; }
+  .hint { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  .wx { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .wx-tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; min-width: 0; }
+  .wx-tile .place { font-size: 12px; color: var(--muted); }
+  .wx-tile .temp { font-family: var(--display); font-size: 30px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .wx-tile .temp small { font-size: 13px; font-weight: 400; color: var(--muted); }
+  .wx-tile .ph { font-size: 13px; }
+  .wx-tile .rain { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .wx-tile .rain b { color: var(--ink); }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cat-tile {
+    text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 2px; min-height: 76px; min-width: 0;
+  }
+  .cat-tile:active { background: var(--accent-soft); }
+  .cat-tile .nm { font-family: var(--display); font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+  .cat-tile .ct { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .cat-tile .ct b { color: var(--accent); font-size: 14px; }
+
+  .rows { display: flex; flex-direction: column; gap: 8px; }
+  .row { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+  .row .tick { flex: none; width: 26px; height: 26px; margin-top: 1px; border-radius: 50%; border: 2px solid var(--muted); background: none; color: var(--surface); font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .row.done .tick { background: var(--accent); border-color: var(--accent); }
+  .row .main { flex: 1; min-width: 0; overflow-wrap: anywhere; border: none; background: none; text-align: left; padding: 0; }
+  .row.done .ttl { color: var(--muted); text-decoration: line-through; }
+  .row .when { flex: none; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .tag { font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .tag.high { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+  .tag.date { background: var(--surface-2); border-color: transparent; color: var(--ink); }
+  .edit { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .edit textarea { width: 100%; min-height: 60px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding: 8px 10px; font-size: 15px; }
+  .edit label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+  .edit input[type="date"] { border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding: 6px 10px; font-size: 15px; max-width: 200px; }
+  .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pillbtn { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 5px 14px; font-size: 13px; min-height: 36px; }
+  .pillbtn.go { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+
+  .seg { display: flex; background: var(--surface-2); border-radius: 999px; padding: 3px; gap: 2px; }
+  .seg button { flex: 1; border: none; background: none; border-radius: 999px; padding: 6px 4px; font-size: 13px; color: var(--muted); min-height: 36px; font-variant-numeric: tabular-nums; }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 700; }
+  .seg.small button { min-height: 32px; font-size: 12px; }
+
+  .cat-head { display: flex; align-items: center; gap: 10px; }
+  .back { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 14px 5px 10px; font-size: 14px; min-height: 38px; flex: none; }
+  .cat-head h1 { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 700; flex: 1; min-width: 0; overflow-wrap: anywhere; text-wrap: balance; }
+
+  .adder { flex: none; border-top: 1px solid var(--line); background: var(--bg); padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; }
+  .adder .line { display: flex; gap: 8px; align-items: center; }
+  .adder input[type="text"] { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); padding: 9px 14px; font-size: 16px; }
+  .adder input[type="date"] { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 6px 10px; font-size: 14px; min-width: 0; flex: 1; }
+  .adder .add { flex: none; border: none; background: var(--accent); color: var(--surface); border-radius: 999px; height: 42px; padding: 0 18px; font-weight: 700; }
+  .adder .seg { flex: 1.2; }
+
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .panel textarea { width: 100%; height: 90px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding: 8px; font: 12px/1.4 ui-monospace, monospace; }
+  .panel input[type="text"] { border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding: 8px 10px; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<section class="stage">
+  <!-- 角色：資料夾裡放一張 character.png 就會自動取代這個暫代角色 -->
+  <button type="button" class="avatar" id="avatar" aria-label="戳一下秘書">
+    <img id="char-img" alt="" hidden>
+    <svg id="char-svg" viewBox="0 0 120 124" aria-hidden="true">
+      <ellipse cx="60" cy="116" rx="26" ry="4" fill="var(--line)"/>
+      <g class="float">
+        <path d="M44 26 Q38 10 30 8" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M76 26 Q82 10 90 8" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="29" cy="8" r="5" fill="var(--lamp)"/>
+        <circle cx="91" cy="8" r="5" fill="var(--lamp)"/>
+        <path d="M60 20 C92 20 104 46 100 72 C97 94 82 104 60 104 C38 104 23 94 20 72 C16 46 28 20 60 20 Z" fill="var(--accent)"/>
+        <ellipse cx="60" cy="80" rx="22" ry="16" fill="var(--accent-soft)"/>
+        <ellipse class="eye" cx="45" cy="54" rx="9" ry="11" fill="#fff"/>
+        <ellipse class="eye" cx="75" cy="54" rx="9" ry="11" fill="#fff"/>
+        <circle cx="47" cy="56" r="4.5" fill="#1b2421"/>
+        <circle cx="77" cy="56" r="4.5" fill="#1b2421"/>
+        <path d="M53 76 Q60 82 67 76" fill="none" stroke="#1b2421" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="44" cy="106" rx="9" ry="5" fill="var(--ink)"/>
+        <ellipse cx="76" cy="106" rx="9" ry="5" fill="var(--ink)"/>
+      </g>
+    </svg>
+  </button>
+  <div class="bubble" id="bubble" aria-live="polite">嗨，我在。</div>
+</section>
+
+<main id="main">
+  <div class="view" id="view-home">
+    <div class="sec">
+      <p class="sec-title">天氣</p>
+      <div class="wx" id="wx"></div>
+      <p class="hint" id="wx-note" hidden></p>
+    </div>
+    <div class="sec" id="soon-sec" hidden>
+      <p class="sec-title">最近的日子</p>
+      <div class="rows" id="soon"></div>
+    </div>
+    <div class="sec">
+      <p class="sec-title">我幫你記著的</p>
+      <div class="grid" id="grid"></div>
+    </div>
+    <div class="sec">
+      <div class="tools">
+        <button type="button" class="pillbtn" id="btn-newcat">新增類別</button>
+        <button type="button" class="pillbtn" id="btn-backup">備份與還原</button>
+      </div>
+      <div class="panel" id="panel-newcat" hidden>
+        <label class="hint" for="newcat-name">新類別的名字</label>
+        <input type="text" id="newcat-name" maxlength="12" placeholder="例如：想看的書">
+        <div class="acts"><button type="button" class="pillbtn go" id="newcat-ok">加入</button><button type="button" class="pillbtn" id="newcat-cancel">取消</button></div>
+      </div>
+      <div class="panel" id="panel-backup" hidden>
+        <p class="hint">資料只存在這台手機裡。換手機前，把下面這段文字整段複製、存到備忘錄；到新手機貼回來按「還原」。</p>
+        <textarea id="backup-text" aria-label="備份文字"></textarea>
+        <div class="acts">
+          <button type="button" class="pillbtn go" id="backup-copy">複製備份文字</button>
+          <button type="button" class="pillbtn" id="backup-restore">用上面的文字還原</button>
+          <button type="button" class="pillbtn" id="backup-close">關閉</button>
+        </div>
+        <p class="hint" id="backup-msg" hidden></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-cat" hidden>
+    <div class="cat-head">
+      <button type="button" class="back" id="back">‹ 首頁</button>
+      <h1 id="cat-name"></h1>
+    </div>
+    <div class="seg" id="filter" role="group" aria-label="篩選">
+      <button type="button" data-f="open" aria-pressed="true"></button>
+      <button type="button" data-f="parked" aria-pressed="false"></button>
+      <button type="button" data-f="done" aria-pressed="false"></button>
+    </div>
+    <div id="list"></div>
+    <button type="button" class="pillbtn" id="del-cat" hidden>刪除這個類別</button>
+  </div>
+</main>
+
+<form class="adder" id="adder" hidden>
+  <div class="line">
+    <input type="text" id="add-title" maxlength="80" autocomplete="off" aria-label="新增一件事">
+    <button type="submit" class="add">加入</button>
+  </div>
+  <div class="line">
+    <div class="seg small" id="add-pri" role="group" aria-label="輕重緩急">
+      <button type="button" data-p="high" aria-pressed="false">要緊</button>
+      <button type="button" data-p="mid" aria-pressed="true">普通</button>
+      <button type="button" data-p="low" aria-pressed="false">不急</button>
+    </div>
+    <input type="date" id="add-date" aria-label="日期（可不填）">
+  </div>
+</form>
+
+<script>
+(function () {
+  const KEY = 'secretary-v1';
+  const WX_KEY = 'secretary-wx-v1';
+  const PLACES = [
+    { name: '汐止', lat: 25.065, lon: 121.66 },
+    { name: '大安', lat: 25.026, lon: 121.543 },
+  ];
+  const DEFAULT_CATS = [
+    { id: 'todo', name: '要做的事', done: '做完了' },
+    { id: 'want', name: '想要做的事', done: '做了' },
+    { id: 'wish', name: '想買的東西', done: '買了' },
+    { id: 'need', name: '該買的東西', done: '買了' },
+    { id: 'gift', name: '要送的禮物', done: '送了' },
+    { id: 'pack', name: '要帶的東西', done: '帶了' },
+    { id: 'read', name: '還沒讀的進度', done: '讀完了' },
+    { id: 'exam', name: '近期的考試', done: '考完了', dated: true },
+  ];
+  const PRI = { high: '要緊', mid: '普通', low: '不急' };
+  const PRI_ORDER = { high: 0, mid: 1, low: 2 };
+  const WD = ['日', '一', '二', '三', '四', '五', '六'];
+  const WMO = { 0: '晴', 1: '大致晴朗', 2: '多雲時晴', 3: '陰', 45: '有霧', 48: '有霧', 51: '毛毛雨', 53: '毛毛雨', 55: '毛毛雨', 56: '毛毛雨', 57: '毛毛雨',
+    61: '小雨', 63: '下雨', 65: '大雨', 66: '冷雨', 67: '冷雨', 71: '下雪', 73: '下雪', 75: '大雪', 77: '下雪', 80: '陣雨', 81: '陣雨', 82: '大陣雨', 85: '陣雪', 86: '陣雪', 95: '雷雨', 96: '雷雨', 99: '雷雨' };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = (n) => String(n).padStart(2, '0');
+  const ymd = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const today = () => ymd(new Date());
+  const isDate = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+  const dayDiff = (s) => Math.round((new Date(s + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 86400000);
+  const md = (s) => Number(s.slice(5, 7)) + '/' + Number(s.slice(8, 10));
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+
+  /* ---------- 資料 ---------- */
+  let memoryOnly = false;
+  function load() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (raw && Array.isArray(raw.cats) && Array.isArray(raw.items)) return raw;
+    } catch (e) { memoryOnly = true; }
+    return { v: 1, cats: DEFAULT_CATS.map(c => Object.assign({}, c)), items: [] };
+  }
+  let data = load();
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(data)); memoryOnly = false; }
+    catch (e) { memoryOnly = true; say('這台手機現在存不了資料，關掉頁面後剛剛記的會不見。檢查一下是不是開了無痕模式。'); }
+  }
+  const ui = { cat: null, filter: 'open', open: null, confirmDel: null, addPri: 'mid', locked: false };
+  const catOf = (id) => data.cats.find(c => c.id === id);
+  const itemsOf = (cid, status) => data.items.filter(i => i.cat === cid && (!status || i.status === status));
+
+  /* ---------- 角色與說話 ---------- */
+  const avatar = $('avatar'), bubble = $('bubble');
+  function say(t) { bubble.textContent = t; }
+  function cheer() { avatar.classList.remove('happy'); void avatar.offsetWidth; avatar.classList.add('happy'); setTimeout(() => avatar.classList.remove('happy'), 1100); }
+  (function tryCharacter() {
+    const img = $('char-img');
+    img.onload = () => { img.hidden = false; $('char-svg').style.display = 'none'; };
+    img.onerror = () => { img.hidden = true; };
+    img.src = 'character.png';
+  })();
+  const CHAT = [
+    '我在這裡，有事叫我。', '要不要先喝口水？', '想到什麼就丟給我，我來記。', '不想動也沒關係，東西我幫你看著。',
+    '今天也辛苦了。', '清單都還在，放心。', '想休息就休息，我不會吵你。', '有想買的東西嗎？先記下來，之後再決定。',
+    '如果有東西明天要帶，現在跟我說，我明天提醒你看一眼。', '你戳我，我會癢。',
+  ];
+
+  function dateLabel(s) {
+    const n = dayDiff(s);
+    if (n === 0) return '今天';
+    if (n === 1) return '明天';
+    if (n === 2) return '後天';
+    if (n < 0) return md(s) + ' 已過';
+    return md(s) + '（週' + WD[new Date(s + 'T00:00:00').getDay()] + '）';
+  }
+  function countdown(s) { const n = dayDiff(s); return n === 0 ? '就是今天' : n === 1 ? '明天' : n > 1 ? `還有 ${n} 天` : ''; }
+  // 七天內有日期、還在進行中的事
+  function soonList() {
+    return data.items.filter(i => i.status === 'open' && isDate(i.date) && dayDiff(i.date) >= 0 && dayDiff(i.date) <= 7)
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+  function briefing() {
+    const h = new Date().getHours();
+    const parts = [(h < 5 ? '這麼晚還沒睡呀' : h < 11 ? '早安' : h < 18 ? '午安' : '晚安') + '。'];
+    const w = wx.list[0];
+    if (w && w.now != null) {
+      parts.push(`${PLACES[0].name}現在 ${Math.round(w.now)}°，${w.text}` + (w.rain >= 50 ? `，降雨機率 ${w.rain}%，帶把傘比較安心` : '') + '。');
+    }
+    const soon = soonList();
+    if (soon.length) {
+      const s = soon[0];
+      parts.push(`「${s.title}」${countdown(s.date)}。`);
+    }
+    const open = data.items.filter(i => i.status === 'open').length;
+    parts.push(open ? `我幫你記著 ${open} 件事，想看再看。` : '現在沒有記著的事，可以放心玩。');
+    return parts.join('');
+  }
+  function refreshBubble() { if (!ui.locked) say(briefing()); }
+
+  /* ---------- 天氣 ---------- */
+  const wx = { list: PLACES.map(() => ({})), at: 0, err: false };
+  function renderWx() {
+    $('wx').innerHTML = PLACES.map((p, i) => {
+      const w = wx.list[i] || {};
+      if (w.now == null) return `<div class="wx-tile"><div class="place">${p.name}</div><div class="ph" style="color:var(--muted)">${wx.err ? '現在讀不到天氣' : '讀取中…'}</div></div>`;
+      return `<div class="wx-tile"><div class="place">${p.name}・現在</div>
+        <div class="temp">${Math.round(w.now)}° <small>${Math.round(w.min)}°–${Math.round(w.max)}°</small></div>
+        <div class="ph">${esc(w.text)}</div><div class="rain">今天降雨機率 <b>${w.rain}%</b></div></div>`;
+    }).join('');
+    const note = $('wx-note');
+    if (wx.err && wx.at) { const d = new Date(wx.at); note.hidden = false; note.textContent = `現在連不上網，這是 ${pad(d.getHours())}:${pad(d.getMinutes())} 的資料。`; }
+    else if (wx.err) { note.hidden = false; note.textContent = '天氣需要網路。連上網後再開一次就會出現。'; }
+    else note.hidden = true;
+  }
+  async function loadWx() {
+    try { const c = JSON.parse(localStorage.getItem(WX_KEY) || 'null'); if (c && c.day === today() && Array.isArray(c.list)) { wx.list = c.list; wx.at = c.at; } } catch (e) {}
+    renderWx(); refreshBubble();
+    if (wx.at && Date.now() - wx.at < 30 * 60 * 1000) return;
+    try {
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + PLACES.map(p => p.lat).join(',') + '&longitude=' + PLACES.map(p => p.lon).join(',') +
+        '&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTaipei&forecast_days=1';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('http ' + res.status);
+      let j = await res.json();
+      if (!Array.isArray(j)) j = [j];
+      wx.list = PLACES.map((p, i) => {
+        const r = j[i] || {};
+        const cur = r.current || {}, d = r.daily || {};
+        if (typeof cur.temperature_2m !== 'number') return {};
+        return { now: cur.temperature_2m, text: WMO[cur.weather_code] || '多雲', max: (d.temperature_2m_max || [])[0], min: (d.temperature_2m_min || [])[0],
+          rain: Math.round((d.precipitation_probability_max || [])[0] || 0) };
+      });
+      if (!wx.list.some(w => w.now != null)) throw new Error('empty');
+      wx.at = Date.now(); wx.err = false;
+      try { localStorage.setItem(WX_KEY, JSON.stringify({ day: today(), at: wx.at, list: wx.list })); } catch (e) {}
+    } catch (e) { wx.err = true; }
+    renderWx(); refreshBubble();
+  }
+
+  /* ---------- 首頁 ---------- */
+  function renderHome() {
+    const soon = soonList().slice(0, 4);
+    $('soon-sec').hidden = !soon.length;
+    $('soon').innerHTML = soon.map(i => `<div class="row"><span class="when">${esc(dateLabel(i.date))}</span>
+      <button type="button" class="main" data-goto="${esc(i.cat)}"><span class="ttl">${esc(i.title)}</span>
+      <div class="tags"><span class="tag date">${esc(countdown(i.date))}</span><span class="tag">${esc((catOf(i.cat) || {}).name || '')}</span></div></button></div>`).join('');
+    $('grid').innerHTML = data.cats.map(c => {
+      const n = itemsOf(c.id, 'open').length, p = itemsOf(c.id, 'parked').length;
+      return `<button type="button" class="cat-tile" data-goto="${esc(c.id)}"><span class="nm">${esc(c.name)}</span>
+        <span class="ct">${n ? `<b>${n}</b> 件` : '空的'}${p ? `・先放著 ${p}` : ''}</span></button>`;
+    }).join('');
+  }
+
+  /* ---------- 類別清單 ---------- */
+  function sortItems(a, b) {
+    const da = isDate(a.date) ? a.date : '9999', db = isDate(b.date) ? b.date : '9999';
+    const c = catOf(a.cat);
+    if (c && c.dated && da !== db) return da < db ? -1 : 1;
+    const p = (PRI_ORDER[a.pri] ?? 1) - (PRI_ORDER[b.pri] ?? 1);
+    if (p) return p;
+    if (da !== db) return da < db ? -1 : 1;
+    return (a.at || 0) - (b.at || 0);
+  }
+  function renderCat() {
+    const c = catOf(ui.cat);
+    if (!c) { go(null); return; }
+    $('cat-name').textContent = c.name;
+    const labels = { open: '進行中', parked: '先放著', done: c.done || '做完了' };
+    $('filter').querySelectorAll('button').forEach(b => {
+      const f = b.dataset.f;
+      b.setAttribute('aria-pressed', String(f === ui.filter));
+      b.textContent = labels[f] + ' ' + itemsOf(c.id, f).length;
+    });
+    let list = itemsOf(c.id, ui.filter);
+    if (ui.filter === 'done') list = list.sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0)).slice(0, 60); else list.sort(sortItems);
+    const box = $('list');
+    if (!list.length) {
+      box.innerHTML = `<p class="hint">${ui.filter === 'open' ? '這裡還是空的。在下面打字就可以加進來。' : ui.filter === 'parked' ? '沒有先放著的東西。' : '還沒有' + esc(labels.done) + '的。'}</p>`;
+    } else {
+      box.innerHTML = '<div class="rows">' + list.map(i => {
+        const open = ui.open === i.id, done = i.status === 'done';
+        return `<div class="row${done ? ' done' : ''}" data-id="${esc(i.id)}">
+          <button type="button" class="tick" data-act="${done ? 'reopen' : 'done'}" aria-label="${done ? '改回進行中' : esc(labels.done)}">${done ? '✓' : ''}</button>
+          <div style="flex:1;min-width:0">
+            <button type="button" class="main" data-act="toggle" style="width:100%"><span class="ttl">${esc(i.title)}</span>
+              <div class="tags">${!done && i.pri === 'high' ? '<span class="tag high">要緊</span>' : ''}${!done && i.pri === 'low' ? '<span class="tag">不急</span>' : ''}${isDate(i.date) ? `<span class="tag date">${esc(dateLabel(i.date))}</span>` : ''}${!done && isDate(i.date) && countdown(i.date) && dayDiff(i.date) > 2 ? `<span class="tag">${esc(countdown(i.date))}</span>` : ''}${i.note && !open ? '<span class="tag">有備註</span>' : ''}</div></button>
+            ${open ? `<div class="edit">
+              <label>備註<textarea data-f="note" placeholder="想補充什麼都可以寫在這裡">${esc(i.note || '')}</textarea></label>
+              <label>日期（可不填）<input type="date" data-f="date" value="${isDate(i.date) ? i.date : ''}"></label>
+              <div class="seg small" role="group" aria-label="輕重緩急">${['high', 'mid', 'low'].map(p => `<button type="button" data-act="pri" data-p="${p}" aria-pressed="${i.pri === p}">${PRI[p]}</button>`).join('')}</div>
+              <div class="acts">
+                ${i.status === 'open' ? '<button type="button" class="pillbtn" data-act="park">先不想</button>' : ''}
+                ${i.status === 'parked' ? '<button type="button" class="pillbtn go" data-act="reopen">拿回來</button>' : ''}
+                <button type="button" class="pillbtn" data-act="del">${ui.confirmDel === i.id ? '確定刪除' : '刪除'}</button>
+              </div></div>` : ''}
+          </div></div>`;
+      }).join('') + '</div>';
+    }
+    const del = $('del-cat');
+    del.hidden = !!DEFAULT_CATS.find(d => d.id === c.id) || data.items.some(i => i.cat === c.id);
+    $('add-title').placeholder = c.dated ? '考什麼？例如：數學段考' : '加一個到「' + c.name + '」';
+  }
+  function setStatus(id, status) {
+    const it = data.items.find(i => i.id === id); if (!it) return;
+    it.status = status; if (status === 'done') it.doneAt = Date.now();
+    ui.open = null; ui.confirmDel = null; save(); renderCat();
+  }
+  $('list').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const row = e.target.closest('[data-id]'); if (!row) return;
+    const id = row.dataset.id, it = data.items.find(i => i.id === id); if (!it) return;
+    const act = b.dataset.act;
+    if (act === 'toggle') { ui.open = ui.open === id ? null : id; ui.confirmDel = null; renderCat(); }
+    else if (act === 'done') { setStatus(id, 'done'); ui.locked = true; say(pick(['好耶，劃掉一件。', '收到，這件結束了。', '又少一件，輕鬆一點了。'])); cheer(); }
+    else if (act === 'reopen') { setStatus(id, 'open'); ui.locked = true; say('好，放回進行中。'); }
+    else if (act === 'park') { setStatus(id, 'parked'); ui.locked = true; say('好，先放著，我幫你收著。想到再來找我。'); }
+    else if (act === 'pri') { it.pri = b.dataset.p; save(); renderCat(); }
+    else if (act === 'del') {
+      if (ui.confirmDel !== id) { ui.confirmDel = id; renderCat(); return; }
+      data.items = data.items.filter(i => i.id !== id); ui.open = null; ui.confirmDel = null; save(); renderCat();
+    }
+  });
+  $('list').addEventListener('change', (e) => {
+    const f = e.target.dataset && e.target.dataset.f; if (!f) return;
+    const row = e.target.closest('[data-id]'); const it = row && data.items.find(i => i.id === row.dataset.id); if (!it) return;
+    if (f === 'note') it.note = e.target.value.slice(0, 1000);
+    if (f === 'date') it.date = isDate(e.target.value) ? e.target.value : '';
+    save();
+    if (f === 'date') renderCat();
+  });
+  $('filter').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; ui.filter = b.dataset.f; ui.open = null; renderCat(); });
+
+  /* ---------- 新增 ---------- */
+  $('add-pri').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return; ui.addPri = b.dataset.p;
+    $('add-pri').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.p === ui.addPri)));
+  });
+  $('adder').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const t = $('add-title').value.trim(); if (!t || !ui.cat) return;
+    const d = $('add-date').value;
+    data.items.push({ id: 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), cat: ui.cat, title: t.slice(0, 80), note: '',
+      pri: ui.addPri, status: 'open', date: isDate(d) ? d : '', at: Date.now() });
+    $('add-title').value = ''; $('add-date').value = '';
+    ui.addPri = 'mid';
+    $('add-pri').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.p === 'mid')));
+    ui.filter = 'open'; save(); renderCat();
+    ui.locked = true; say(isDate(d) ? `記下了，${dateLabel(d)}，交給我。` : '記下了，交給我。'); cheer();
+  });
+
+  /* ---------- 換頁 ---------- */
+  function go(catId) {
+    ui.cat = catId; ui.filter = 'open'; ui.open = null; ui.confirmDel = null;
+    $('view-home').hidden = !!catId; $('view-cat').hidden = !catId; $('adder').hidden = !catId;
+    $('main').scrollTop = 0;
+    if (catId) renderCat(); else { ui.locked = false; renderHome(); refreshBubble(); }
+  }
+  document.addEventListener('click', (e) => { const g = e.target.closest('[data-goto]'); if (g) go(g.dataset.goto); });
+  $('back').addEventListener('click', () => go(null));
+  avatar.addEventListener('click', () => { ui.locked = true; say(pick(CHAT)); cheer(); });
+
+  /* ---------- 類別管理、備份 ---------- */
+  $('btn-newcat').addEventListener('click', () => { $('panel-newcat').hidden = false; $('panel-backup').hidden = true; $('newcat-name').focus(); });
+  $('newcat-cancel').addEventListener('click', () => { $('panel-newcat').hidden = true; });
+  $('newcat-ok').addEventListener('click', () => {
+    const n = $('newcat-name').value.trim().slice(0, 12); if (!n) { $('newcat-name').focus(); return; }
+    if (data.cats.some(c => c.name === n)) { say('已經有「' + n + '」這個類別了。'); return; }
+    data.cats.push({ id: 'c' + Date.now().toString(36), name: n, done: '做完了' });
+    $('newcat-name').value = ''; $('panel-newcat').hidden = true; save(); renderHome();
+  });
+  $('del-cat').addEventListener('click', () => { data.cats = data.cats.filter(c => c.id !== ui.cat); save(); go(null); });
+  $('btn-backup').addEventListener('click', () => {
+    $('panel-backup').hidden = false; $('panel-newcat').hidden = true; $('backup-msg').hidden = true;
+    $('backup-text').value = JSON.stringify(data);
+  });
+  $('backup-close').addEventListener('click', () => { $('panel-backup').hidden = true; });
+  function bmsg(t) { const m = $('backup-msg'); m.hidden = false; m.textContent = t; }
+  $('backup-copy').addEventListener('click', async () => {
+    const ta = $('backup-text'); ta.value = JSON.stringify(data);
+    try { await navigator.clipboard.writeText(ta.value); bmsg('已複製。貼到備忘錄存起來。'); }
+    catch (e) { ta.focus(); ta.select(); bmsg('沒辦法自動複製。上面的文字已經全選，請自己按「拷貝」。'); }
+  });
+  $('backup-restore').addEventListener('click', () => {
+    try {
+      const j = JSON.parse($('backup-text').value);
+      if (!j || !Array.isArray(j.cats) || !Array.isArray(j.items)) throw new Error('shape');
+      data = { v: 1, cats: j.cats.filter(c => c && c.id && c.name), items: j.items.filter(i => i && i.id && i.title && i.cat) };
+      save(); renderHome(); bmsg(`還原好了，共 ${data.items.length} 件事。`);
+    } catch (e) { bmsg('這段文字不是完整的備份，沒有還原。請確認整段都有貼上。'); }
+  });
+
+  /* ---------- 啟動 ---------- */
+  go(null);
+  loadWx();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { loadWx(); if (!ui.cat) { renderHome(); refreshBubble(); } else renderCat(); } });
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
+})();
+</script>
+</body>
+</html>
