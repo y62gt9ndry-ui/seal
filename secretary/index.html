@@ -339,32 +339,35 @@
         <div class="ph">${esc(w.text)}</div><div class="rain">今天降雨機率 <b>${w.rain}%</b></div></div>`;
     }).join('');
     const note = $('wx-note');
-    if (wx.err && wx.at) { const d = new Date(wx.at); note.hidden = false; note.textContent = `現在連不上網，這是 ${pad(d.getHours())}:${pad(d.getMinutes())} 的資料。`; }
-    else if (wx.err) { note.hidden = false; note.textContent = '天氣需要網路。連上網後再開一次就會出現。'; }
+    const why = wx.why ? `（原因：${wx.why}）` : '';
+    if (wx.err && wx.at) { const d = new Date(wx.at); note.hidden = false; note.textContent = `有地點沒讀到新的天氣，畫面上是 ${pad(d.getHours())}:${pad(d.getMinutes())} 的資料。${why}`; }
+    else if (wx.err) { note.hidden = false; note.textContent = `天氣沒讀到。${why}`; }
     else note.hidden = true;
   }
   async function loadWx() {
     try { const c = JSON.parse(localStorage.getItem(WX_KEY) || 'null'); if (c && c.day === today() && Array.isArray(c.list)) { wx.list = c.list; wx.at = c.at; } } catch (e) {}
     renderWx(); refreshBubble();
     if (wx.at && Date.now() - wx.at < 30 * 60 * 1000) return;
-    try {
-      const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + PLACES.map(p => p.lat).join(',') + '&longitude=' + PLACES.map(p => p.lon).join(',') +
-        '&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTaipei&forecast_days=1';
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('http ' + res.status);
-      let j = await res.json();
-      if (!Array.isArray(j)) j = [j];
-      wx.list = PLACES.map((p, i) => {
-        const r = j[i] || {};
-        const cur = r.current || {}, d = r.daily || {};
-        if (typeof cur.temperature_2m !== 'number') return {};
-        return { now: cur.temperature_2m, text: WMO[cur.weather_code] || '多雲', max: (d.temperature_2m_max || [])[0], min: (d.temperature_2m_min || [])[0],
-          rain: Math.round((d.precipitation_probability_max || [])[0] || 0) };
-      });
-      if (!wx.list.some(w => w.now != null)) throw new Error('empty');
-      wx.at = Date.now(); wx.err = false;
+    // 每個地點各自讀一次，一個失敗不影響另一個
+    const one = async (p) => {
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + p.lat + '&longitude=' + p.lon +
+        '&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1';
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) { let reason = ''; try { reason = (await res.json()).reason || ''; } catch (e) {} throw new Error('http ' + res.status + (reason ? ' ' + reason : '')); }
+      const r = await res.json();
+      const cur = r.current || {}, d = r.daily || {};
+      if (typeof cur.temperature_2m !== 'number') throw new Error('沒有氣溫資料');
+      return { now: cur.temperature_2m, text: WMO[cur.weather_code] || '多雲', max: (d.temperature_2m_max || [])[0], min: (d.temperature_2m_min || [])[0],
+        rain: Math.round((d.precipitation_probability_max || [])[0] || 0) };
+    };
+    const got = await Promise.all(PLACES.map(p => one(p).catch(e => ({ fail: String((e && e.message) || e).slice(0, 80) }))));
+    const fails = got.filter(g => g.fail);
+    if (fails.length < got.length) {
+      wx.list = got.map((g, i) => (g.fail ? (wx.list[i] || {}) : g));
+      wx.at = Date.now();
       try { localStorage.setItem(WX_KEY, JSON.stringify({ day: today(), at: wx.at, list: wx.list })); } catch (e) {}
-    } catch (e) { wx.err = true; }
+    }
+    wx.err = fails.length > 0; wx.why = fails.length ? fails[0].fail : '';
     renderWx(); refreshBubble();
   }
 
