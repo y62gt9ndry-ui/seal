@@ -1,1 +1,1 @@
-{"name":"小秘書","short_name":"小秘書","start_url":"./","scope":"./","display":"standalone","background_color":"#6b4a35","theme_color":"#6b4a35","icons":[{"src":"icon-512.png","sizes":"512x512","type":"image/png"},{"src":"apple-touch-icon.png","sizes":"180x180","type":"image/png"}]}
+{"name":"小秘書","short_name":"小秘書","start_url":"./","scope":"./","display":"standalone","background_color":"#f8e3a0","theme_color":"#f8e3a0","icons":[{"src":"icon-512.png","sizes":"512x512","type":"image/png"},{"src":"apple-touch-icon.png","sizes":"180x180","type":"image/png"}]}
