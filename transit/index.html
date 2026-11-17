@@ -155,7 +155,8 @@
     {route:'668',  uid:'TPE45198',  city:'Taipei'},
     {route:'955',  uid:'TPE187570', city:'Taipei'}
   ];
-  var BUS_EVERY = 30000, DELAY_EVERY = 60000;
+  // 配合 TDX 免費方案（每把金鑰每分鐘 5 次、每月約 4,500 次）
+  var BUS_EVERY = 60000, DELAY_EVERY = 120000, MIN_GAP = 60000;
 
   var $ = function(id){ return document.getElementById(id); };
   var store = {
@@ -221,7 +222,7 @@
   }
   function explain(e){
     var m = e && e.message || '';
-    if (m === 'LIMIT') return creds() ? '今天的呼叫次數用完了，明天會恢復。' : '免金鑰的次數用完了。請按右上角設定，貼上你的 TDX 金鑰。';
+    if (m === 'LIMIT') return creds() ? '查得太頻繁，等一分鐘會自動恢復；如果一直出現，可能是本月點數用完了。' : '免金鑰的次數用完了。請按右上角設定，貼上你的 TDX 金鑰。';
     if (m === 'KEY') return creds() ? '金鑰沒有通過驗證。請到設定確認 Client ID 和 Client Secret 有沒有貼完整。' : '需要金鑰才能讀取。請按右上角設定，貼上你的 TDX 金鑰。';
     if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return '連不上 TDX，請確認網路後再按重新整理。';
     return '讀取失敗（' + m + '）。';
@@ -340,12 +341,17 @@
     state.outbound = !state.outbound; store.set('transit.outbound', state.outbound ? '1' : '0');
     state.showAll = false; loadTrains();
   });
-  function refreshAll(){ loadBus(); loadDelays(); loadTrains(); }
-  $('refreshBtn').addEventListener('click', refreshAll);
+  var lastBus = 0, lastDelay = 0, lastDay = taipei().date;
+  function refreshAll(){ lastBus = lastDelay = Date.now(); loadBus(); loadDelays(); loadTrains(); }
+  $('refreshBtn').addEventListener('click', function(){
+    // 手動重新整理至少間隔一分鐘，避免撞到每分鐘上限
+    if (Date.now() - lastBus < MIN_GAP) { $('busNote').textContent = '剛更新過，一分鐘後可再按'; return; }
+    refreshAll();
+  });
 
   function keyState(){
     $('keyState').textContent = creds()
-      ? '已儲存金鑰。公車每 30 秒、誤點每分鐘自動更新。'
+      ? '已儲存金鑰。公車每分鐘、誤點每兩分鐘自動更新；切到別的 App 時暫停。'
       : '目前沒有金鑰：只能用 TDX 的免金鑰額度（每天次數很少），不會自動更新，要手動按重新整理。';
   }
   $('settingsBtn').addEventListener('click', function(){
@@ -368,7 +374,6 @@
     $('cid').value = ''; $('csec').value = ''; keyState();
   });
 
-  var lastBus = 0, lastDelay = 0, lastDay = taipei().date;
   setInterval(function(){
     var t = taipei();
     $('clock').textContent = t.md + '　星期' + t.wd + '　' + t.hms;
@@ -381,11 +386,11 @@
   }, 1000);
   setInterval(function(){ if (!document.hidden) renderTrains(); }, 20000);
   document.addEventListener('visibilitychange', function(){
-    if (!document.hidden) { lastBus = lastDelay = Date.now(); refreshAll(); }
+    // 切回來時，距離上次更新超過一分鐘才重查
+    if (!document.hidden && Date.now() - lastBus >= MIN_GAP) refreshAll();
   });
 
   syncSeg();
-  lastBus = lastDelay = Date.now();
   refreshAll();
 })();
 </script>
