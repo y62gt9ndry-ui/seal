@@ -809,7 +809,14 @@ $("bkClose").addEventListener("click",()=>{ $("bkBox").hidden=true; });
 $("bkRestore").addEventListener("click",async()=>{
   try{
     const o=await readBackup($("bkText").value);
-    const learned=Object.keys(o.s).length;
+    const learned=Object.keys(o.s).length, nowLearned=Object.keys(S.s||{}).length;
+    if(nowLearned>0 && (learned<nowLearned || (o.updatedAt||0)<(S.updatedAt||0))){
+      const when=o.updatedAt?(()=>{const d=new Date(o.updatedAt);return `${d.getMonth()+1}/${d.getDate()}`;})():"之前";
+      if(!confirm(`這組備份碼是 ${when} 的進度，比手機上現在的舊：\n學過的字 ${nowLearned} 個 → ${learned} 個\n金幣 ${S.coins} → ${o.coins}\n\n還原後，現在的進度會被取代、救不回來。確定要還原嗎？`)) return;
+    }
+    // 還原不算缺席：上次玩的日期設成今天，避免舊碼一還原就觸發黑化歸零
+    const t=today(); o.lastActive=t; o.lastDay=Math.max(o.lastDay??-1, t-1);
+    if(o.evil && !o.wiped) o.evilDay=Math.max(o.evilDay??t, t);
     S=o; S.updatedAt=Date.now(); saveLocal(); if(docRef) pushRemote();
     $("bkBox").hidden=true; renderHome(); toast(`還原完成！學過 ${learned} 個字、${S.coins} 金幣`);
   }catch(e){
