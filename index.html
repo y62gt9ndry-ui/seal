@@ -332,6 +332,7 @@ body.evil .tray{box-shadow:0 3px 0 #120F17, inset 0 0 18px #7B4BB033}
       <button class="link" id="toList">查看單字表</button>
       <span class="sync" id="sync"><i></i><span>只存在這台裝置</span></span>
     </div>
+    <div class="hint" id="diag" style="text-align:center;font-size:12px;opacity:.75"></div>
   </section>
 
   <!-- GAME -->
@@ -636,7 +637,12 @@ if(PREVIEW) enterPreview();
 function persisted(){ const o=JSON.parse(JSON.stringify(S)); if(PREVIEW&&REAL){ o.evil=REAL.evil; o.purify=REAL.purify; o.evilDay=REAL.evilDay; o.wiped=REAL.wiped; } return o; }
 
 let docRef=null, saving=false, saveAgain=false, saveTimer=null, busy=false;
-function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(persisted())); }catch(e){} }
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(persisted())); localStorage.setItem("seal-saved-at", String(Date.now())); }catch(e){ try{ window.__saveErr=String(e&&e.name||e); }catch(_){} } }
+function showDiag(){ try{ const el=document.getElementById("diag"); if(!el) return; const f=t=>{ if(!t) return "沒有"; const d=new Date(+t); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
+  let saved="?", first="?"; try{ saved=f(localStorage.getItem("seal-saved-at")); first=f(localStorage.getItem("seal-first-open")); }catch(e){ saved="無法讀取"; }
+  const mode=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone?"主畫面":"瀏覽器";
+  el.textContent=`版本 11/21b｜${mode}｜這裡第一次打開：${first}｜上次存檔：${saved}${window.__saveErr?"｜存檔失敗："+window.__saveErr:""}`; }catch(e){} }
+try{ if(!localStorage.getItem("seal-first-open")) localStorage.setItem("seal-first-open", String(Date.now())); }catch(e){}
 function save(){ S.updatedAt=Date.now(); saveLocal(); if(!docRef) return; clearTimeout(saveTimer); saveTimer=setTimeout(pushRemote,1200); }
 async function pushRemote(){
   if(!docRef) return;
@@ -739,7 +745,7 @@ function grade(q, good){
 
 /* ===== home ===== */
 const GREETS=["嗨！今天也一起做可麗餅吧","客人在排隊了，快來幫忙","每天一點點，會考見！","拼錯也沒關係，客人會再來"];
-function renderHome(){
+function renderHome(){ showDiag();
   rollDay(); checkEvil(); renderSeason();
   $("sealHome").innerHTML=sealSVG(118,hat(),S.evil);
   const due=reviewList().length, fresh=newList(Math.max(0,S.newPerDay-S.newDone)).length;
